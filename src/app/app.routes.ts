@@ -8,11 +8,9 @@ import { SprachenComponent } from './components/sprachen/sprachen.component';
 import { AkademischComponent } from './components/akademisch/akademisch.component';
 import { ProjekteComponent } from './components/projekte/projekte.component';
 import { ErfahrungComponent } from './components/erfahrung/erfahrung.component';
-import { ThreeSceneComponent } from './three-scene/three-scene.component';
-import { GiantScreenComponent } from './components/giant-screen/giant-screen.component';
 
 export const routes: Routes = [
-  { path: '', component: ThreeSceneComponent },
+  { path: '', redirectTo: 'profil', pathMatch: 'full' }, // Redirect to profil by default
   { path: 'profil', component: ProfilComponent },
   { path: 'daten', component: DatenComponent },
   { path: 'skills', component: SkillsComponent },
@@ -21,11 +19,10 @@ export const routes: Routes = [
   { path: 'akademisch', component: AkademischComponent },
   { path: 'projekte', component: ProjekteComponent },
   { path: 'erfahrung', component: ErfahrungComponent },
-  { path: '**', redirectTo: '' },
   {
-  path: 'screen',
-  loadComponent: () =>
-    import('./components/giant-screen/giant-screen.component').then(m => m.GiantScreenComponent)
-}
-
+    path: 'screen',
+    loadComponent: () =>
+      import('./components/giant-screen/giant-screen.component').then(m => m.GiantScreenComponent)
+  },
+  { path: '**', redirectTo: 'profil' } // Redirect any other route to profil
 ];

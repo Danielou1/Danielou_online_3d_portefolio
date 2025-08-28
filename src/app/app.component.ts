@@ -1,5 +1,6 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 // Import composants...
 import { DatenComponent } from './components/daten/daten.component';
@@ -31,12 +32,23 @@ import { ThreeSceneComponent } from './three-scene/three-scene.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnDestroy {
   title = 'danielou-portfolio';
+  showContentWrapper: boolean = true; // New property
+  private routerSubscription: any; // To store the subscription
+
+  constructor(private router: Router) { // Injected Router
+    // Subscribe to router events to control content wrapper visibility
+    this.routerSubscription = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.showContentWrapper = !event.urlAfterRedirects.includes('/screen');
+    });
+  }
 
   ngAfterViewInit(): void {
     if (typeof document === 'undefined') {
-      return; // Sécurité SSR
+      return; // SSR safety
     }
 
     setTimeout(() => {
@@ -67,5 +79,11 @@ export class AppComponent implements AfterViewInit {
         });
       });
     }, 0);
+  }
+
+  ngOnDestroy(): void { // Added OnDestroy lifecycle hook
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe(); // Unsubscribe to prevent memory leaks
+    }
   }
 }

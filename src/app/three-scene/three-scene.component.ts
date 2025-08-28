@@ -7,8 +7,9 @@ import {
 } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router'; // <-- IMPORT ADDED HERE
 import html2canvas from 'html2canvas';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-three-scene',
@@ -30,6 +31,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private screenPanel!: THREE.Mesh;
+  private hoveredObject: THREE.Object3D | null = null;
 
   private onCanvasClick = (event: MouseEvent): void => {
     const canvas = this.canvasRef.nativeElement;
@@ -48,45 +50,39 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       if (clicked) {
         console.log('🧭 Panneau cliqué :', clicked.label);
 
-        if (clickedObject.name === 'main-screen') {
-          console.log('🖥️ Écran principal cliqué → vers /profil');
+        if (clicked.label === 'main' || clickedObject.name === 'main-screen') {
           this.router.navigate(['/profil']);
-          return;
-        }
-
-        switch (clicked.label.toLowerCase()) {
-          case 'profil':
-            this.updatePanelContent();
-            break;
-          case 'daten':
-            this.router.navigate(['/daten']);
-            break;
-          case 'skills':
-            this.router.navigate(['/skills']);
-            break;
-          case 'softskills':
-            this.router.navigate(['/softskills']);
-            break;
-          case 'projekte':
-            this.router.navigate(['/projekte']);
-            break;
-          case 'akademisch':
-            this.router.navigate(['/akademisch']);
-            break;
-          case 'sprachen':
-            this.router.navigate(['/sprachen']);
-            break;
-          case 'erfahrung':
-            this.router.navigate(['/erfahrung']);
-            break;
-          case 'giant':
-            this.router.navigate(['/screen'], { queryParams: { section: 'profil' } });
-            break;
-          default:
-            console.warn('🔍 Panneau inconnu :', clicked.label);
-            break;
+        } else if (clicked.label === 'giant') {
+          this.router.navigate(['/screen'], { queryParams: { section: 'profil' } });
+        } else {
+          this.router.navigate([`/${clicked.label.toLowerCase()}`]);
         }
       }
+    }
+  };
+
+  private onPointerMove = (event: MouseEvent): void => {
+    const canvas = this.canvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+
+    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.signPanels.map(p => p.mesh));
+
+    const intersectedObject = intersects.length > 0 ? (intersects[0].object as THREE.Mesh) : null;
+
+    // If we are no longer hovering over the same object
+    if (this.hoveredObject && this.hoveredObject !== intersectedObject) {
+        this.hoveredObject.scale.set(1, 1, 1);
+        this.hoveredObject = null;
+    }
+
+    // If we are hovering over a new object
+    if (intersectedObject && this.hoveredObject !== intersectedObject) {
+        this.hoveredObject = intersectedObject;
+        this.hoveredObject.scale.set(1.1, 1.1, 1.1);
     }
   };
 
@@ -94,8 +90,18 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     if (typeof window === 'undefined') return;
 
     this.initThree();
-    await this.createPanelWithContent();
+    await this.createPanelWithContent(); // Initial content
     this.animate();
+
+    // Subscribe to router events to update the screen on navigation
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      // Use a small timeout to ensure the new component is rendered
+      setTimeout(() => {
+        this.updatePanelContent();
+      }, 100);
+    });
   }
 
   ngOnDestroy(): void {
@@ -106,6 +112,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
     if (this.canvasRef?.nativeElement) {
       this.canvasRef.nativeElement.removeEventListener('click', this.onCanvasClick);
+      this.canvasRef.nativeElement.removeEventListener('pointermove', this.onPointerMove);
     }
 
     this.renderer?.dispose();
@@ -122,18 +129,39 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.addGiantScreens();
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.shadowMap.enabled = true; // Enable shadows
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
-    this.controls.maxPolarAngle = Math.PI / 2.1;
+    this.controls.enableDamping = true; // Enable damping (smoothness)
+    this.controls.dampingFactor = 0.05; // Slightly increased damping
+    this.controls.minDistance = 5; // Minimum zoom distance
+    this.controls.maxDistance = 15; // Maximum zoom distance
+    this.controls.minPolarAngle = Math.PI / 4; // Limit vertical rotation (look up less)
+    this.controls.maxPolarAngle = Math.PI / 2.1; // Limit vertical rotation (look down less)
+    this.controls.minAzimuthAngle = -Math.PI / 3; // Limit horizontal rotation (left)
+    this.controls.maxAzimuthAngle = Math.PI / 3; // Limit horizontal rotation (right)
+    this.controls.enablePan = false; // Disable panning
     this.controls.target.set(-2, 2, 0);
     this.controls.update();
     canvas.addEventListener('click', this.onCanvasClick);
+    canvas.addEventListener('pointermove', this.onPointerMove);
 
 
     // Lumières
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.3)); // Reduced intensity
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
     dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true; // Enable shadow casting for directional light
+    // Configure shadow camera for directional light
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.camera.near = 0.5;
+    dirLight.shadow.camera.far = 50;
+    dirLight.shadow.camera.left = -10;
+    dirLight.shadow.camera.right = 10;
+    dirLight.shadow.camera.top = 10;
+    dirLight.shadow.camera.bottom = -10;
     this.scene.add(dirLight);
 
     // Sol extérieur
@@ -142,26 +170,22 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       new THREE.MeshStandardMaterial({ color: 0x707070 })
     );
     ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
+    ground.receiveShadow = true; // Ground receives shadows
     this.scene.add(ground);
 
     // Murs
     const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
     const backWall = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 0.1), wallMaterial);
     backWall.position.set(0, 2, -2);
+    backWall.castShadow = true; // Walls cast shadows
+    backWall.receiveShadow = true; // Walls receive shadows
     this.scene.add(backWall);
 
     const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, 4, 4), wallMaterial);
     rightWall.position.set(3, 2, 0);
+    rightWall.castShadow = true; // Walls cast shadows
+    rightWall.receiveShadow = true; // Walls receive shadows
     this.scene.add(rightWall);
-
-    // Rideau translucide (mur gauche)
-    const curtain = new THREE.Mesh(
-      new THREE.BoxGeometry(0.1, 4, 4),
-      new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 })
-    );
-    curtain.position.set(-3, 2, 0);
-    this.scene.add(curtain);
 
     // Toit principal
     const roof = new THREE.Mesh(
@@ -170,6 +194,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     );
     roof.rotation.y = Math.PI / 4;
     roof.position.y = 5;
+    roof.castShadow = true; // Roof casts shadows
     this.scene.add(roof);
 
     // Sol intérieur
@@ -179,6 +204,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     );
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = 0.01;
+    floor.receiveShadow = true; // Floor receives shadows
     this.scene.add(floor);
 
     // Bar principal
@@ -187,6 +213,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       new THREE.MeshStandardMaterial({ color: 0x8b4513 })
     );
     bar.position.set(0, 0.5, 1.8);
+    bar.castShadow = true; // Bar casts shadows
+    bar.receiveShadow = true; // Bar receives shadows
     this.scene.add(bar);
 
     // === 🧊 AUVENT (Toit plastique) + 🧱 PIEDS ===
@@ -206,6 +234,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const awning = new THREE.Mesh(awningGeometry, awningMaterial);
     awning.position.set(0, 3.2, 2 + awningDepth / 2);
     awning.rotation.x = Math.PI / 10;
+    awning.castShadow = true; // Awning casts shadows
+    awning.receiveShadow = true; // Awning receives shadows
     this.scene.add(awning);
 
     // Pieds métalliques (2 colonnes)
@@ -214,10 +244,12 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
     const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
     leftLeg.position.set(-awningWidth / 2 + 0.1, 1.6, 2.3);
+    leftLeg.castShadow = true; // Legs cast shadows
     this.scene.add(leftLeg);
 
     const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
     rightLeg.position.set(awningWidth / 2 - 0.1, 1.6, 2.3);
+    rightLeg.castShadow = true; // Legs cast shadows
     this.scene.add(rightLeg);
 
     // Table
@@ -226,6 +258,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       new THREE.MeshStandardMaterial({ color: 0x6b4f3b })
     );
     table.position.set(0, 1, 0);
+    table.castShadow = true; // Table casts shadows
+    table.receiveShadow = true; // Table receives shadows
     this.scene.add(table);
 
     // Chaises
@@ -233,6 +267,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     [-0.8, 0.8].forEach(x => {
       const chair = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), chairMat);
       chair.position.set(x, 0.2, 0);
+      chair.castShadow = true; // Chairs cast shadows
+      chair.receiveShadow = true; // Chairs receive shadows
       this.scene.add(chair);
     });
 
@@ -241,6 +277,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     [0xff0000, 0x00ff00].forEach((color, i) => {
       const bottle = new THREE.Mesh(bottleGeo, new THREE.MeshStandardMaterial({ color }));
       bottle.position.set(i === 0 ? -0.2 : 0.2, 1.15, i === 0 ? -0.1 : 0.2);
+      bottle.castShadow = true; // Bottles cast shadows
       this.scene.add(bottle);
     });
 
@@ -251,6 +288,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
         new THREE.MeshStandardMaterial({ color: 0xffff00 })
       );
       fry.position.set(-0.1 + i * 0.05, 1.16, 0);
+      fry.castShadow = true; // Fries cast shadows
       this.scene.add(fry);
     }
 
@@ -260,6 +298,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       new THREE.MeshStandardMaterial({ color: 0x333333 })
     );
     vendingMachine.position.set(2.7, 1, 1.6);
+    vendingMachine.castShadow = true; // Vending machine casts shadows
     this.scene.add(vendingMachine);
 
     // Ajout des lampes de luxe
@@ -557,7 +596,19 @@ private addGiantScreens(): void {
 }
 private async renderToTexture(): Promise<THREE.Texture> {
   const element = document.getElementById('render-content');
-  if (!element) throw new Error('render-content introuvable');
+  if (!element) {
+    console.warn('Element with ID "render-content" not found. Returning a blank texture.');
+    // Return a dummy canvas texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const context = canvas.getContext('2d');
+    if (context) {
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, 1, 1);
+    }
+    return new THREE.CanvasTexture(canvas);
+  }
   const canvas = await html2canvas(element);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;

@@ -1,3 +1,16 @@
+:host {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  pointer-events: auto;
+  display: block;
+}
+
 .profil-card {
   background: white;
   border-radius: 20px;
