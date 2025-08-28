@@ -1,0 +1,33 @@
+<div id="render-content" class="giant-screen">
+  <div class="back" (click)="setSection('profil')">← Back</div>
+
+  <div class="nav-right">
+    <div [class.active]="activeSection === 'profil'" (click)="setSection('profil')">About</div>
+    <div [class.active]="activeSection === 'skills'" (click)="setSection('skills')">Skills</div>
+    <div [class.active]="activeSection === 'erfahrung'" (click)="setSection('erfahrung')">Experience</div>
+  </div>
+
+  <div class="content">
+    <ng-container [ngSwitch]="activeSection">
+      <div *ngSwitchCase="'profil'">
+        <h1>Profil</h1>
+        <p>I am Danielou Mouns, etc.</p>
+      </div>
+      <div *ngSwitchCase="'skills'">
+        <h1>Skills</h1>
+        <p>My skills are wide-ranging... etc.</p>
+      </div>
+      <div *ngSwitchCase="'erfahrung'">
+        <h1>Erfahrung</h1>
+        <p>Mercedes, Deutsche Post, etc.</p>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="social-links">
+    <a href="https://twitter.com/..." target="_blank">🐦</a>
+    <a href="https://github.com/..." target="_blank">💻</a>
+    <a href="mailto:...">✉️</a>
+    <a href="https://linkedin.com/in/..." target="_blank">💼</a>
+  </div>
+</div>

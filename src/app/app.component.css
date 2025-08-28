@@ -1,0 +1,92 @@
+/* 🎨 Police moderne (Google Fonts à inclure si besoin) */
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa; /* 🌤️ Fond clair neutre */
+  color: #1f2937; /* Texte anthracite foncé */
+}
+
+/* 🧱 Conteneur global centré */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+/* 🧩 Style pour chaque section */
+section {
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  width: 100%;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease;
+}
+
+section:hover {
+  transform: translateY(-3px);
+}
+
+/* 🏷️ Titres */
+h1, h2, h3 {
+  color: #1a202c;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+p, li {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 🔗 Liens */
+a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+  perspective: 1000px;
+}
+
+section:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px) rotateX(2deg) rotateY(2deg);
+}
+.card-3d {
+  display: block;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  max-width: 900px;
+  cursor: grab;
+  transition: box-shadow 0.3s ease;
+}
+
+.card-3d:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}

@@ -1,0 +1,24 @@
+.profil-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.profil-card:hover {
+  transform: perspective(800px) rotateY(5deg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+}
+
+.profil-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.profil-card p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
