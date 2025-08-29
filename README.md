@@ -1,27 +1,59 @@
-# DanielouPortfolio
+# Danielou's 3D Portfolio
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.3.
+Welcome to the repository for Danielou's 3D Portfolio. This project is an interactive web application designed to showcase my professional background, skills, and projects in a visually engaging and modern way using a 3D scene.
 
-## Development server
+## ✨ Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+*   **Interactive 3D Scene**: Navigate through a 3D environment to explore different sections of the resume.
+*   **Responsive Design**: Optimal user experience across all devices, from mobile to desktop.
+*   **Modular Components**: Built with Angular components for easy maintenance and scalability.
 
-## Code scaffolding
+## 🛠️ Technologies Used
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+This project is built with the following technologies:
 
-## Build
+*   **Frontend**:
+    *   [Angular](https://angular.io/) (^17.3.0)
+    *   [Three.js](https://threejs.org/) (^0.164.1) for 3D rendering
+    *   [Tailwind CSS](https://tailwindcss.com/) for styling
+*   **Backend & Server-Side Rendering (SSR)**:
+    *   [Angular Universal (SSR)](https://angular.dev/guide/ssr)
+    *   [Express.js](https://expressjs.com/)
+*   **Language**:
+    *   [TypeScript](https://www.typescriptlang.org/)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## 🚀 Installation and Usage
 
-## Running unit tests
+To run this project locally, follow these steps:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+1.  **Clone the repository:**
+    ```bash
+    git clone <REPOSITORY_URL>
+    cd danielou-portfolio
+    ```
 
-## Running end-to-end tests
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+3.  **Run the development server:**
+    The application will be available at `http://localhost:4200/`.
+    ```bash
+    npm start
+    ```
 
-## Further help
+4.  **Build the project:**
+    The compiled files will be stored in the `dist/` directory.
+    ```bash
+    npm run build
+    ```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+5.  **Run tests:**
+    ```bash
+    npm test
+    ```
+
+## 📄 License
+
+This project is private and intended for personal use.
