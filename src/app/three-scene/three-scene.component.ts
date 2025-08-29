@@ -188,11 +188,9 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // Lumières
-    // Low-intensity hemisphere light for a dark night ambiance
     const hemisphereLight = new THREE.HemisphereLight(0x404050, 0x080820, 0.1);
     this.scene.add(hemisphereLight);
 
-    // A very faint directional light to simulate moonlight
     const dirLight = new THREE.DirectionalLight(0x405060, 0.1);
     dirLight.position.set(10, 15, 10);
     dirLight.castShadow = true;
@@ -210,7 +208,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.addPlatformLights();
     this.addStreetLights();
 
-    // Sol extérieur
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(30, 30),
       new THREE.MeshStandardMaterial({ color: 0x707070 })
@@ -230,19 +227,19 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private addBus(): void {
     const busGroup = new THREE.Group();
 
-    const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x0055A2, metalness: 0.7, roughness: 0.4 }); // A blue color
-    const windowMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.2, transparent: true, opacity: 0.8 });
+    const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x0055A2, metalness: 0.7, roughness: 0.4 });
+    const windowMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.1, transparent: true, opacity: 0.3 });
     const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.1 });
 
     // Bus Body
     const body = new THREE.Mesh(new THREE.BoxGeometry(8, 2.5, 2.2), bodyMaterial);
     body.position.y = 1.5;
-    body.castShadow = true;
+    body.castShadow = false;
     busGroup.add(body);
 
     // Wheels
-    const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.5, 32);
-    wheelGeometry.rotateZ(Math.PI / 2);
+    const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 32);
+    wheelGeometry.rotateX(Math.PI / 2);
     const wheelPositions = [-2.5, 2.5];
     wheelPositions.forEach(x => {
       [-1.1, 1.1].forEach(z => {
@@ -256,6 +253,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const sideWindow = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.1), windowMaterial);
     sideWindow.position.set(0, 2, 1.1);
     busGroup.add(sideWindow);
+    
     const otherSideWindow = sideWindow.clone();
     otherSideWindow.position.z = -1.1;
     busGroup.add(otherSideWindow);
@@ -279,16 +277,12 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       busGroup.add(headLight.target);
     });
 
-    // Interior Light
-    const interiorLight = new THREE.PointLight(0xffd899, 3.0, 7, 2); // Increased intensity
-    interiorLight.position.set(0, 2.2, 0);
-    busGroup.add(interiorLight);
-
     // Line Number Display
     const numberTexture = this.createBusNumberTexture();
     const numberMaterial = new THREE.MeshBasicMaterial({ map: numberTexture });
     const numberDisplay = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.4), numberMaterial);
     numberDisplay.position.set(4.01, 2.5, 0);
+    numberDisplay.rotation.y = Math.PI / 2;
     busGroup.add(numberDisplay);
 
     // RMV Logo
@@ -310,11 +304,11 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = 'bold 50px "Courier New", Courier, monospace';
+    ctx.font = 'bold 45px "Courier New", Courier, monospace';
     ctx.fillStyle = '#FFA500'; // Orange color
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('64', canvas.width / 2, canvas.height / 2);
+    ctx.fillText('801', canvas.width / 2, canvas.height / 2);
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
     return texture;
@@ -650,9 +644,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     menuBoardGroup.add(pole);
 
     // --- Screen Group (Frame, Screen, and Text) ---
-    // This group will be tilted, and all children will inherit the tilt.
     const screenGroup = new THREE.Group();
-    screenGroup.position.y = 1.5 + 0.9; // Position the whole screen assembly on top of the pole
+    screenGroup.position.y = 1.5 + 0.9; 
     screenGroup.rotation.x = -Math.PI / 12;
     menuBoardGroup.add(screenGroup);
 
@@ -668,7 +661,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
         emissiveIntensity: 1.5
     });
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.7), screenMaterial);
-    screen.position.z = 0.045; // Slightly in front of the frame's center
+    screen.position.z = 0.045; 
     screenGroup.add(screen);
 
     const menuItems = [
@@ -685,7 +678,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const itemHeight = 0.18;
     const spacing = 0.02;
     const totalItemBlockHeight = menuItems.length * (itemHeight + spacing) - spacing;
-    // Start Y is now in the screen's local space (from the center)
     const startY = (totalItemBlockHeight / 2) - (itemHeight / 2);
 
     menuItems.forEach((item, index) => {
@@ -710,16 +702,14 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       const itemMaterial = new THREE.MeshBasicMaterial({ map: createMenuItemTexture(item.text), transparent: true });
       const itemMesh = new THREE.Mesh(itemGeometry, itemMaterial);
       
-      // Position is now simple, relative to the screen's center
       const yPos = startY - index * (itemHeight + spacing);
-      itemMesh.position.set(0, yPos, 0.05); // Place it just in front of the screen surface
+      itemMesh.position.set(0, yPos, 0.05);
       
-      screenGroup.add(itemMesh); // Add to the tilted screen group
+      screenGroup.add(itemMesh);
       this.signPanels.push({ mesh: itemMesh, label: item.label });
     });
 
-    // Apply final position and scale to the whole assembly
-    menuBoardGroup.position.set(4.3, 0, 2.2); // Moved 0.5m to the right
+    menuBoardGroup.position.set(4.3, 0, 2.2);
     menuBoardGroup.scale.set(0.8, 0.8, 0.8);
     this.scene.add(menuBoardGroup);
   }
@@ -731,16 +721,10 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const plateMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.3 });
     const plateGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.02, 16);
 
-    // Table is at (0, 1, 0)
-    // Chair 1 is at (-0.8, 0.2, 0)
-    // Chair 2 is at (0.8, 0.2, 0)
-
-    // Cup on table
     const cup1 = new THREE.Mesh(cupGeometry, cupMaterial);
     cup1.position.set(-0.2, 1.08, 0.1);
     this.scene.add(cup1);
 
-    // Plate on table
     const plate1 = new THREE.Mesh(plateGeometry, plateMaterial);
     plate1.position.set(0.2, 1.01, -0.1);
     this.scene.add(plate1);
@@ -748,15 +732,15 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
   private addAwningLights(): void {
     const lightGroup = new THREE.Group();
-    const lightColor = 0xffd899; // Warm yellow light
-    const intensity = 3.5; // Increased intensity for night scene
+    const lightColor = 0xffd899;
+    const intensity = 3.5;
     const distance = 6;
     const decay = 2;
 
     const positionsX = [-2, 0, 2];
     for (const x of positionsX) {
         const light = new THREE.PointLight(lightColor, intensity, distance, decay);
-        light.position.set(x, 3, 2.5); // Under the awning
+        light.position.set(x, 3, 2.5);
         light.castShadow = true;
         lightGroup.add(light);
 
@@ -773,7 +757,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private addPlatformLights(): void {
     const lightGroup = new THREE.Group();
     const lightColor = 0xffd899;
-    const intensity = 4.0; // Increased intensity for night scene
+    const intensity = 4.0;
     const distance = 8;
     const decay = 2;
 
@@ -781,11 +765,10 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
     for (const z of zPositions) {
       const light = new THREE.PointLight(lightColor, intensity, distance, decay);
-      light.position.set(-12.5, 3.2, z); // Under the roof
-      light.castShadow = true; // Allow platform lights to cast shadows
+      light.position.set(-12.5, 3.2, z);
+      light.castShadow = true;
       lightGroup.add(light);
 
-      // Optional: add a simple mesh to represent the light fixture
       const fixture = new THREE.Mesh(
         new THREE.BoxGeometry(0.2, 0.1, 0.2),
         new THREE.MeshStandardMaterial({ color: 0x333333, emissive: lightColor, emissiveIntensity: 1.0 })
@@ -844,7 +827,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private addTrainTracks(): void {
     const trackGroup = new THREE.Group();
 
-    // Platform
     const platformGeometry = new THREE.BoxGeometry(3, 0.2, 15);
     const platformMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
     const platform = new THREE.Mesh(platformGeometry, platformMaterial);
@@ -852,7 +834,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     platform.receiveShadow = true;
     trackGroup.add(platform);
 
-    // Sleepers
     const sleeperGeometry = new THREE.BoxGeometry(0.2, 0.05, 2);
     const sleeperMaterial = new THREE.MeshStandardMaterial({ color: 0x6B4F3B });
     for (let i = -15; i < 15; i += 0.8) {
@@ -862,7 +843,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       trackGroup.add(sleeper);
     }
 
-    // Rails
     const railGeometry = new THREE.BoxGeometry(0.08, 0.08, 30);
     const railMaterial = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.8, roughness: 0.5 });
     
@@ -881,8 +861,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
   private addTrain(): void {
     const trainGroup = new THREE.Group();
-    trainGroup.position.set(-14.5, 0.35, 0); // Position on tracks
-    trainGroup.rotation.y = Math.PI / 2; // Align with Z-axis tracks
+    trainGroup.position.set(-14.5, 0.35, 0);
+    trainGroup.rotation.y = Math.PI / 2;
 
     const dbRed = 0xDB1F26;
     const bodyMaterial = new THREE.MeshStandardMaterial({ color: dbRed, metalness: 0.8, roughness: 0.4 });
@@ -892,18 +872,16 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const wheelGeometry = new THREE.CylinderGeometry(0.25, 0.25, 1.2, 16);
     wheelGeometry.rotateX(Math.PI / 2);
 
-    // --- Locomotive ---
     const locomotiveGroup = new THREE.Group();
     const locoBody = new THREE.Mesh(new THREE.BoxGeometry(4, 1.2, 1), bodyMaterial);
     locoBody.position.y = 0.6;
     locoBody.castShadow = true;
     locomotiveGroup.add(locoBody);
 
-    // DB Logo
     const logoTexture = this.createDBLogoTexture();
     const logoMaterial = new THREE.MeshBasicMaterial({ map: logoTexture, transparent: true });
     const logoPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), logoMaterial);
-    logoPlane.position.set(0, 0.7, 0.51); // On the side of the body
+    logoPlane.position.set(0, 0.7, 0.51);
     locomotiveGroup.add(logoPlane);
 
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1), new THREE.MeshStandardMaterial({ color: 0x444444 }));
@@ -911,12 +889,10 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     cabin.castShadow = true;
     locomotiveGroup.add(cabin);
 
-    // Cabin Window
     const cabinWindow = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.5, 0.8), windowMaterial);
     cabinWindow.position.set(-1.95, 1.4, 0);
     locomotiveGroup.add(cabinWindow);
 
-    // Headlight
     const headLightFixture = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.1, 0.1), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.0 }));
     headLightFixture.position.set(-2.0, 0.8, 0);
     headLightFixture.rotation.z = Math.PI / 2;
@@ -924,7 +900,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
     const headLight = new THREE.SpotLight(0xffffff, 5.0, 20, Math.PI / 6, 0.5, 2);
     headLight.position.set(-2.0, 0.8, 0);
-    headLight.target.position.set(-10, 0.8, 0); // Target far ahead
+    headLight.target.position.set(-10, 0.8, 0);
     locomotiveGroup.add(headLight);
     locomotiveGroup.add(headLight.target);
 
@@ -936,7 +912,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     locomotiveGroup.position.x = -10;
     trainGroup.add(locomotiveGroup);
 
-    // --- Carriages ---
     const carriageLength = 5;
     const carriageWidth = 1.1;
     const carriageHeight = 1.4;
@@ -950,8 +925,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       carriageBody.castShadow = true;
       carriageGroup.add(carriageBody);
 
-      // Carriage Windows
-      for (let j = -1; j <= 1; j += 2) { // Both sides
+      for (let j = -1; j <= 1; j += 2) { 
         for (let k = -1.5; k <= 1.5; k += 1) {
           const window = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.05), windowMaterial);
           window.position.set(k, 0.9, (carriageWidth / 2) * j);
@@ -994,7 +968,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
   private createBench(): THREE.Group {
     const bench = new THREE.Group();
-    const benchMaterial = new THREE.MeshStandardMaterial({ color: 0x805A46 }); // A wood color
+    const benchMaterial = new THREE.MeshStandardMaterial({ color: 0x805A46 });
     
     const seat = new THREE.Mesh(
       new THREE.BoxGeometry(2, 0.1, 0.4),
@@ -1028,15 +1002,14 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   }
 
   private addPlatformDetails(): void {
-    // Create and position benches
     const bench1 = this.createBench();
-    bench1.position.set(-12.2, 0.2, -4); // On the new platform
-    bench1.rotation.y = -Math.PI / 2; // Face the train
+    bench1.position.set(-12.2, 0.2, -4);
+    bench1.rotation.y = -Math.PI / 2;
     this.scene.add(bench1);
 
     const bench2 = this.createBench();
-    bench2.position.set(-12.2, 0.2, 4); // On the new platform
-    bench2.rotation.y = -Math.PI / 2; // Face the train
+    bench2.position.set(-12.2, 0.2, 4);
+    bench2.rotation.y = -Math.PI / 2;
     this.scene.add(bench2);
   }
 
@@ -1045,26 +1018,21 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const roofMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.5 });
     const columnMaterial = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.8 });
 
-    // Roof
-    const roofGeometry = new THREE.BoxGeometry(4, 0.2, 16);
-    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(4, 0.2, 16), roofMaterial);
     roof.position.set(-12.5, 3.5, 0);
     roof.castShadow = true;
     roof.receiveShadow = true;
     roofGroup.add(roof);
 
-    // Columns
     const columnGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3.3, 16);
-    const zPositions = [-6, 0, 6]; // 3 columns on each side
+    const zPositions = [-6, 0, 6];
 
     for (const z of zPositions) {
-      // Left side columns
       const col1 = new THREE.Mesh(columnGeometry, columnMaterial);
-      col1.position.set(-11.5, 1.85, z); // y = 0.2 (platform top) + 3.3/2
+      col1.position.set(-11.5, 1.85, z);
       col1.castShadow = true;
       roofGroup.add(col1);
 
-      // Right side columns
       const col2 = new THREE.Mesh(columnGeometry, columnMaterial);
       col2.position.set(-13.5, 1.85, z);
       col2.castShadow = true;
@@ -1147,7 +1115,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
         varying vec3 vWorldPosition;
         void main() {
           float h = normalize(vWorldPosition).y;
-          // Dark night sky with a subtle gradient
           gl_FragColor = vec4(mix(vec3(0.0, 0.0, 0.0), vec3(0.05, 0.0, 0.1), smoothstep(0.0, 0.5, h)), 1.0);
         }
       `,
