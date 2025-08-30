@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { SceneControlService } from '../../scene-control.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-daten',
@@ -6,4 +8,10 @@ import { Component } from '@angular/core';
   templateUrl: './daten.component.html',
   styleUrls: ['./daten.component.css']
 })
-export class DatenComponent {}
+export class DatenComponent {
+  constructor(private sceneControlService: SceneControlService, private router: Router) {}
+
+  goBack() {
+    this.sceneControlService.requestZoom('screen');
+  }
+}

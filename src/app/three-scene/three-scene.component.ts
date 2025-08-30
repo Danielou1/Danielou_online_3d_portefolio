@@ -42,6 +42,58 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private cameraAzimuth = 0; // Start from front
   private cameraPolar = Math.PI / 2; // Start level
 
+  // Zoom properties
+  private isZooming = false;
+  private zoomStartTime = 0;
+  private zoomDuration = 1000; // 1 second
+  private initialCameraPosition = new THREE.Vector3();
+  private targetCameraPosition = new THREE.Vector3();
+  private initialCameraTarget = new THREE.Vector3();
+  private targetCameraTarget = new THREE.Vector3();
+
+  import { SceneControlService } from '../scene-control.service';
+
+@Component({
+  selector: 'app-three-scene',
+  standalone: true,
+  template: `<canvas #canvas style="cursor: grab;"></canvas>`,
+  styles: [`canvas { width: 100%; height: 100vh; display: block; }`]
+})
+export class ThreeSceneComponent implements OnInit, OnDestroy {
+  @ViewChild('canvas', { static: true }) private canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  constructor(private router: Router, private sceneControlService: SceneControlService) {}
+
+  private renderer!: THREE.WebGLRenderer;
+  private scene!: THREE.Scene;
+  private camera!: THREE.PerspectiveCamera;
+  private animationId = 0;
+
+  private signPanels: { mesh: THREE.Mesh, label: string }[] = [];
+  private screenPanel!: THREE.Mesh;
+  private raycaster = new THREE.Raycaster();
+  private mouse = new THREE.Vector2();
+
+  // Mouse control properties
+  private isDragging = false;
+  private previousMousePosition = { x: 0, y: 0 };
+  private dragThreshold = 3; // Pixels
+
+  // Orbit control properties
+  private cameraTarget = new THREE.Vector3(0, 1.5, 0);
+  private cameraRadius = 10;
+  private cameraAzimuth = 0; // Start from front
+  private cameraPolar = Math.PI / 2; // Start level
+
+  // Zoom properties
+  private isZooming = false;
+  private zoomStartTime = 0;
+  private zoomDuration = 1000; // 1 second
+  private initialCameraPosition = new THREE.Vector3();
+  private targetCameraPosition = new THREE.Vector3();
+  private initialCameraTarget = new THREE.Vector3();
+  private targetCameraTarget = new THREE.Vector3();
+
   async ngOnInit(): Promise<void> {
     if (typeof window === 'undefined') return;
 
@@ -59,7 +111,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     canvas.addEventListener('wheel', this.onMouseWheel);
     window.addEventListener('resize', this.onWindowResize);
 
-
     // Router subscription to update screen
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
@@ -67,6 +118,15 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.updatePanelContent();
       }, 100);
+    });
+
+    // Scene control subscription
+    this.sceneControlService.zoomRequest$.subscribe(target => {
+      if (typeof target === 'string' && target === 'screen') {
+        this.zoomToScreen();
+      } else if (target instanceof THREE.Object3D) {
+        this.zoomOnObject(target);
+      }
     });
   }
 
@@ -145,11 +205,37 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       }
 
       if (sign && sign.label !== 'giant' && sign.label !== 'main') {
+        this.sceneControlService.requestZoom(sign.mesh);
         const route = sign.label.toLowerCase();
         this.router.navigate([`/${route}`]);
       }
     }
   };
+
+  private zoomOnObject(targetObject: THREE.Object3D) {
+    console.log('zoomOnObject called with:', targetObject.name || targetObject.uuid);
+    if (this.isZooming) return;
+
+    this.isZooming = true;
+    this.zoomStartTime = Date.now();
+
+    this.initialCameraPosition.copy(this.camera.position);
+    this.initialCameraTarget.copy(this.cameraTarget);
+
+    const targetPosition = new THREE.Vector3();
+    targetObject.getWorldPosition(targetPosition);
+
+    this.targetCameraTarget.copy(targetPosition);
+
+    // Calculate camera position to be 3 units away from the object
+    const offset = this.camera.position.clone().sub(targetPosition).normalize().multiplyScalar(3);
+    this.targetCameraPosition.copy(targetPosition).add(offset);
+  }
+
+  private zoomToScreen() {
+    console.log('zoomToScreen called');
+    this.zoomOnObject(this.screenPanel);
+  }
 
   private onMouseWheel = (event: WheelEvent) => {
     event.preventDefault();
@@ -1044,6 +1130,26 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
+
+    if (this.isZooming) {
+      const now = Date.now();
+      const elapsed = now - this.zoomStartTime;
+      const progress = Math.min(elapsed / this.zoomDuration, 1);
+
+      // Ease-out quint function for smoother animation
+      const easeProgress = 1 - Math.pow(1 - progress, 5);
+
+      this.camera.position.lerpVectors(this.initialCameraPosition, this.targetCameraPosition, easeProgress);
+      this.cameraTarget.lerpVectors(this.initialCameraTarget, this.targetCameraTarget, easeProgress);
+      this.camera.lookAt(this.cameraTarget);
+
+      console.log('animate: isZooming=', this.isZooming, 'camera.position=', this.camera.position.toArray(), 'cameraTarget=', this.cameraTarget.toArray());
+
+      if (progress >= 1) {
+        this.isZooming = false;
+      }
+    }
+
     this.animateLeaves();
     this.renderer.render(this.scene, this.camera);
   };
@@ -1303,9 +1409,10 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const geometry = new THREE.PlaneGeometry(3.5, 2.2);
     this.screenPanel = new THREE.Mesh(geometry, material);
     this.screenPanel.name = 'main-screen';
-    this.screenPanel.position.set(0, 5.5, -4.5);
+    this.screenPanel.position.set(0, 6.1, 2.5);
     this.scene.add(this.screenPanel);
     this.signPanels.push({ mesh: this.screenPanel, label: 'main' });
+    console.log('screenPanel created at:', this.screenPanel.position.toArray());
   }
 
   async updatePanelContent() {
@@ -1314,8 +1421,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     material.map?.dispose();
     material.map = newTexture;
     material.needsUpdate = true;
+    console.log('screenPanel updated. New texture applied.');
   }
-}
 
 // Helper function to create a texture from text
 function createTextTexture(text: string, width: number, height: number): THREE.CanvasTexture {
