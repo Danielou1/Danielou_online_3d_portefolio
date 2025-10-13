@@ -1,5 +1,11 @@
 <app-three-scene></app-three-scene>
-<div id="render-content" style="position: absolute; left: -9999px; top: 0; width: 1024px; background: #111; padding: 20px;">
+
+<!-- Synchronized HTML Panel -->
+<div 
+  class="html-panel"
+  [style.transform]="panelState.transform"
+  [class.visible]="panelState.visible"
+>
   <router-outlet></router-outlet>
 </div>
 

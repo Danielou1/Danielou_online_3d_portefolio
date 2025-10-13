@@ -1,31 +1,37 @@
-<div class="p-4 font-sans">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-2xl font-bold text-dodger-blue border-b-2 border-dodger-blue pb-2">Expérience</h2>
-    <button (click)="goBack()" class="text-dodger-blue hover:text-blue-700">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+<div class="profile-container">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <h2 class="title">{{ experienceData[currentLanguage].title }}</h2>
+    <button class="lang-toggle" (click)="toggleLanguage()">
+      {{ currentLanguage === 'de' ? 'EN' : 'DE' }}
     </button>
   </div>
-  <div class="space-y-4">
-    <div>
-      <div class="flex justify-between items-baseline">
-        <h3 class="font-bold">Technische Hochschule Mittelhessen (Praktikum, Forschung, Entwicklung)</h3>
-        <span class="text-sm text-gray-600">Oktober 2023 - laufend</span>
+
+  <!-- Timeline -->
+  <div class="timeline">
+    <div *ngFor="let item of experienceData[currentLanguage].timeline" class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">{{ item.date }}</div>
+        <h3 class="timeline-institution">{{ item.title }} bei {{ item.company }}</h3>
+        <p class="timeline-degree">{{ item.location }}</p>
+        <p class="timeline-description">{{ item.description }}</p>
       </div>
-      <p class="text-gray-800">Unterstützung bei der Forschung und Entwicklung eines Microcontroller-basierten Remote-Labors. Mitarbeit an der Implementierung, Test und Optimierung von Embedded-Systemen.</p>
-    </div>
-    <div>
-      <div class="flex justify-between items-baseline">
-        <h3 class="font-bold">Bundesamt für Migration und Flüchtlinge(BAMF)</h3>
-        <span class="text-sm text-gray-600">2023 - laufend</span>
-      </div>
-      <p class="text-gray-800">Durchführung von Anhörungen als Dolmetscher, Erstellung schriftlicher Übersetzungen und Anlage von Akten. Unterstützung der Verwaltungsprozesse und Gewährleistung präziser Kommunikation zwischen Behörde und Antragstellern.</p>
-    </div>
-    <div>
-      <div class="flex justify-between items-baseline">
-        <h3 class="font-bold">Schunk Group (STS/CNC Bereich)</h3>
-        <span class="text-sm text-gray-600">Juli - August 2025</span>
-      </div>
-      <p class="text-gray-800">Programmierung und Bedienung von Siemens-CNC-Maschinen, Fertigung und Bearbeitung von Bauteilen, Überwachung der Fertigungsprozesse.</p>
     </div>
   </div>
+
+  <!-- Footer with Social Links -->
+  <footer class="profile-footer">
+    <a href="https://github.com/Danielou1" target="_blank" title="GitHub" class="social-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.54 2.74c0 5.46 3.3 6.65 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+    </a>
+    <a href="https://www.linkedin.com/in/danielou-mounsande/" target="_blank" title="LinkedIn" class="social-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+    </a>
+    <a href="mailto:mounsandedaniel@gmail.com" title="Email" class="social-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+    </a>
+  </footer>
+
 </div>
