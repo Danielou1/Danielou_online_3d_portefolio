@@ -10,6 +10,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import { filter } from 'rxjs/operators';
 import { SceneControlService } from '../scene-control.service';
+import { LanguageService } from '../language.service';
 
 @Component({
   selector: 'app-three-scene',
@@ -20,7 +21,7 @@ import { SceneControlService } from '../scene-control.service';
 export class ThreeSceneComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', { static: true }) private canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private router: Router, private sceneControlService: SceneControlService) {}
+  constructor(private router: Router, private sceneControlService: SceneControlService, private languageService: LanguageService) {}
 
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
@@ -76,6 +77,17 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.updatePanelContent();
       }, 100);
+    });
+
+    // Language service subscription to update screen on language change
+    this.languageService.language$.subscribe(() => {
+      // We use two requestAnimationFrames to ensure the DOM has been fully
+      // updated and painted by Angular before we run html2canvas.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.updatePanelContent();
+        });
+      });
     });
 
     // Scene control subscription
@@ -163,7 +175,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       }
 
       if (sign && sign.label !== 'giant' && sign.label !== 'main') {
-        this.sceneControlService.requestZoom(sign.mesh);
+        this.sceneControlService.requestZoom('screen');
         const route = sign.label.toLowerCase();
         this.router.navigate([`/${route}`]);
       }
@@ -185,8 +197,9 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
     this.targetCameraTarget.copy(targetPosition);
 
-    // Calculate camera position to be 3 units away from the object
-    const offset = this.camera.position.clone().sub(targetPosition).normalize().multiplyScalar(3);
+    // Calculate camera position to be 4 units in front of the object
+    const offset = new THREE.Vector3(0, 0, 4);
+    offset.applyQuaternion(targetObject.quaternion);
     this.targetCameraPosition.copy(targetPosition).add(offset);
   }
 
@@ -220,7 +233,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.addBahnhofLampPost();
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.updateCameraPosition();
-    this.addGiantScreens();
     this.addTrainTracks();
     this.addTrain();
     this.addPlatformDetails();
@@ -1306,41 +1318,6 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.scene.add(group);
   }
 
-  private addGiantScreens(): void {
-    const panelGeometry = new THREE.PlaneGeometry(2.2, 1.2);
-    const panelMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      side: THREE.DoubleSide
-    });
-
-    const panels: THREE.Mesh[] = [];
-
-    const leftPanel = new THREE.Mesh(panelGeometry, panelMaterial);
-    leftPanel.position.set(-4.2, 6.1, 0);
-    leftPanel.rotation.y = Math.PI / 8;
-    panels.push(leftPanel);
-
-    const rightPanel = new THREE.Mesh(panelGeometry, panelMaterial);
-    rightPanel.position.set(4.2, 6.1, 0);
-    rightPanel.rotation.y = -Math.PI / 8;
-    panels.push(rightPanel);
-
-    const frontPanel = new THREE.Mesh(panelGeometry, panelMaterial);
-    frontPanel.position.set(0, 6.1, 2.5);
-    frontPanel.rotation.y = 0;
-    panels.push(frontPanel);
-
-    const backPanel = new THREE.Mesh(panelGeometry, panelMaterial);
-    backPanel.position.set(0, 6.1, -2.5);
-    backPanel.rotation.y = Math.PI;
-    panels.push(backPanel);
-
-    panels.forEach(panel => {
-      this.scene.add(panel);
-      this.signPanels.push({ mesh: panel, label: 'giant' });
-    });
-  }
-
   private async renderToTexture(): Promise<THREE.Texture> {
     const element = document.getElementById('render-content');
     if (!element) {
@@ -1373,22 +1350,12 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     console.log('screenPanel created at:', this.screenPanel.position.toArray());
   }
 
-    async updatePanelContent() {
-
-      const newTexture = await this.renderToTexture();
-
-      const material = this.screenPanel.material as THREE.MeshBasicMaterial;
-
-      material.map?.dispose();
-
-      material.map = newTexture;
-
-      material.needsUpdate = true;
-
-      console.log('screenPanel updated. New texture applied.');
-
-    }
-
+  async updatePanelContent() {
+    const newTexture = await this.renderToTexture();
+    const material = this.screenPanel.material as THREE.MeshBasicMaterial;
+    material.map?.dispose();
+    material.map = newTexture;
+    material.needsUpdate = true;
+    console.log('screenPanel updated. New texture applied.');
   }
-
-  
+}
