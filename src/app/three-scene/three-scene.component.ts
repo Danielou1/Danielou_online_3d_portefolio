@@ -9,49 +9,7 @@ import * as THREE from 'three';
 import { NavigationEnd, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import { filter } from 'rxjs/operators';
-
-@Component({
-  selector: 'app-three-scene',
-  standalone: true,
-  template: `<canvas #canvas style="cursor: grab;"></canvas>`,
-  styles: [`canvas { width: 100%; height: 100vh; display: block; }`]
-})
-export class ThreeSceneComponent implements OnInit, OnDestroy {
-  @ViewChild('canvas', { static: true }) private canvasRef!: ElementRef<HTMLCanvasElement>;
-
-  constructor(private router: Router) {}
-
-  private renderer!: THREE.WebGLRenderer;
-  private scene!: THREE.Scene;
-  private camera!: THREE.PerspectiveCamera;
-  private animationId = 0;
-
-  private signPanels: { mesh: THREE.Mesh, label: string }[] = [];
-  private screenPanel!: THREE.Mesh;
-  private raycaster = new THREE.Raycaster();
-  private mouse = new THREE.Vector2();
-
-  // Mouse control properties
-  private isDragging = false;
-  private previousMousePosition = { x: 0, y: 0 };
-  private dragThreshold = 3; // Pixels
-
-  // Orbit control properties
-  private cameraTarget = new THREE.Vector3(0, 1.5, 0);
-  private cameraRadius = 10;
-  private cameraAzimuth = 0; // Start from front
-  private cameraPolar = Math.PI / 2; // Start level
-
-  // Zoom properties
-  private isZooming = false;
-  private zoomStartTime = 0;
-  private zoomDuration = 1000; // 1 second
-  private initialCameraPosition = new THREE.Vector3();
-  private targetCameraPosition = new THREE.Vector3();
-  private initialCameraTarget = new THREE.Vector3();
-  private targetCameraTarget = new THREE.Vector3();
-
-  import { SceneControlService } from '../scene-control.service';
+import { SceneControlService } from '../scene-control.service';
 
 @Component({
   selector: 'app-three-scene',
@@ -1440,4 +1398,5 @@ function createTextTexture(text: string, width: number, height: number): THREE.C
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   return texture;
+}
 }
