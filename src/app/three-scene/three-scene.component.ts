@@ -1373,30 +1373,22 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     console.log('screenPanel created at:', this.screenPanel.position.toArray());
   }
 
-  async updatePanelContent() {
-    const newTexture = await this.renderToTexture();
-    const material = this.screenPanel.material as THREE.MeshBasicMaterial;
-    material.map?.dispose();
-    material.map = newTexture;
-    material.needsUpdate = true;
-    console.log('screenPanel updated. New texture applied.');
+    async updatePanelContent() {
+
+      const newTexture = await this.renderToTexture();
+
+      const material = this.screenPanel.material as THREE.MeshBasicMaterial;
+
+      material.map?.dispose();
+
+      material.map = newTexture;
+
+      material.needsUpdate = true;
+
+      console.log('screenPanel updated. New texture applied.');
+
+    }
+
   }
 
-// Helper function to create a texture from text
-function createTextTexture(text: string, width: number, height: number): THREE.CanvasTexture {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext('2d')!;
-  context.fillStyle = '#ffffff';
-  context.fillRect(0, 0, width, height);
-  context.font = '48px Arial';
-  context.fillStyle = '#000000';
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-  context.fillText(text, width / 2, height / 2);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  return texture;
-}
-}
+  
