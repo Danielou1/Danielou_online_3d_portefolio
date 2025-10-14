@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Language, LanguageService } from '../../language.service';
+import { SceneControlService } from '../../scene-control.service';
 
 @Component({
   selector: 'app-skills',
@@ -64,7 +65,7 @@ export class SkillsComponent implements OnInit, OnDestroy {
     }
   };
 
-  constructor(public languageService: LanguageService) {}
+  constructor(public languageService: LanguageService, private sceneControlService: SceneControlService) {}
 
   ngOnInit(): void {
     this.langSub = this.languageService.language$.subscribe(lang => {
@@ -80,5 +81,9 @@ export class SkillsComponent implements OnInit, OnDestroy {
 
   toggleLanguage(): void {
     this.languageService.toggleLanguage();
+  }
+
+  goBack(): void {
+    this.sceneControlService.requestCameraReset();
   }
 }

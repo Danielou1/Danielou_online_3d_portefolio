@@ -72,6 +72,11 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
           this.zoomOnObject(target);
         }
       });
+
+      this.sceneControlService.cameraResetRequest$.subscribe(() => {
+        this.resetCamera();
+        this.syncService.updatePanelState({ visible: false, transform: '' }); // Hide panel on reset
+      });
     }
   }
 
@@ -143,13 +148,22 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const targetPosition = new THREE.Vector3();
     targetObject.getWorldPosition(targetPosition);
     this.targetCameraTarget.copy(targetPosition);
-    const offset = new THREE.Vector3(0, 0, 4);
+    // Calculate camera position to be 4 units behind the object (to view its front face from the exterior)
+    const offset = new THREE.Vector3(0, 0, -4); // Changed to -4
     offset.applyQuaternion(targetObject.quaternion);
     this.targetCameraPosition.copy(targetPosition).add(offset);
   }
 
   private zoomToScreen() {
     this.zoomOnObject(this.screenPanel);
+  }
+
+  private resetCamera(): void {
+    this.cameraRadius = 10;
+    this.cameraAzimuth = 0;
+    this.cameraPolar = Math.PI / 2;
+    this.cameraTarget.set(0, 1.5, 0);
+    this.updateCameraPosition();
   }
 
   private onMouseWheel = (event: WheelEvent) => {
@@ -184,22 +198,27 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    const hemisphereLight = new THREE.HemisphereLight(0x404050, 0x080820, 0.1);
-    this.scene.add(hemisphereLight);
-    const dirLight = new THREE.DirectionalLight(0x405060, 0.1);
-    dirLight.position.set(10, 15, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    this.scene.add(dirLight);
-    this.addAwningLights();
-    this.addPlatformLights();
-    this.addStreetLights();
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.MeshStandardMaterial({ color: 0x707070 }));
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
-    this.createMainBuilding();
+                        const hemisphereLight = new THREE.HemisphereLight(0x404050, 0x080820, 1.3); // Further increased intensity
+                        this.scene.add(hemisphereLight);
+                    
+                        const dirLight = new THREE.DirectionalLight(0x405060, 1.8); // Further increased intensity
+                        dirLight.position.set(10, 15, 10);
+                        dirLight.castShadow = true;
+                        dirLight.shadow.mapSize.width = 2048;
+                        dirLight.shadow.mapSize.height = 2048;
+                        this.scene.add(dirLight);
+                    
+                        this.addAwningLights();
+                        this.addPlatformLights();
+                        this.addStreetLights();
+                    
+                        const ground = new THREE.Mesh(
+                          new THREE.PlaneGeometry(30, 30),
+                          new THREE.MeshStandardMaterial({ color: 0x333344, emissive: 0x000022, emissiveIntensity: 0.5 }) // Luminous, futuristic ground
+                        );
+                        ground.rotation.x = -Math.PI / 2;
+                        ground.receiveShadow = true;
+                        this.scene.add(ground);    this.createMainBuilding();
     this.createScreenPanel();
     this.addCharacters();
     this.addMenuBoard();
@@ -254,7 +273,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
     const geometry = new THREE.PlaneGeometry(8, 5); // Made larger to match panel size
     const material = new THREE.MeshBasicMaterial({ visible: false });
     this.screenPanel = new THREE.Mesh(geometry, material);
-    this.screenPanel.position.set(0, 3, 3.5); // Adjusted position
+    this.screenPanel.position.set(0, 1.5, -2.04); // Adjusted position to be on the exterior back wall, below roof
     this.scene.add(this.screenPanel);
   }
 
@@ -275,9 +294,12 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private addCharacters(): void { const characterMaterial = new THREE.MeshStandardMaterial({ color: 0x1E90FF }); const createCharacter = () => { const character = new THREE.Group(); const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.3), characterMaterial); torso.castShadow = true; character.add(torso); const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), characterMaterial); head.position.y = 0.6; head.castShadow = true; character.add(head); return character; }; const char1 = createCharacter(); char1.position.set(-0.8, 0.8, 0); this.scene.add(char1); const char2 = createCharacter(); char2.position.set(0.8, 0.8, 0); char2.rotation.y = Math.PI; this.scene.add(char2); }
   private addMenuBoard(): void { const menuBoardGroup = new THREE.Group(); const standMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.9, roughness: 0.4 }); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.05, 32), standMaterial); base.castShadow = true; menuBoardGroup.add(base); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.5, 16), standMaterial); pole.position.y = 0.75; pole.castShadow = true; menuBoardGroup.add(pole); const screenGroup = new THREE.Group(); screenGroup.position.y = 1.5 + 0.9; screenGroup.rotation.x = -Math.PI / 12; menuBoardGroup.add(screenGroup); const frame = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.8, 0.08), standMaterial); frame.castShadow = true; screenGroup.add(frame); const screenMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0x111111, emissiveIntensity: 1.5 }); const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.7), screenMaterial); screen.position.z = 0.045; screenGroup.add(screen); const menuItems = [ { label: 'Profil', text: 'About Me' }, { label: 'Daten', text: 'Data' }, { label: 'Skills', text: 'Skills' }, { label: 'SoftSkills', text: 'Soft Skills' }, { label: 'Projekte', text: 'Projects' }, { label: 'Akademisch', text: 'Academic' }, { label: 'Sprachen', text: 'Languages' }, { label: 'Erfahrung', text: 'Experience' } ]; const itemHeight = 0.18; const spacing = 0.02; const totalItemBlockHeight = menuItems.length * (itemHeight + spacing) - spacing; const startY = (totalItemBlockHeight / 2) - (itemHeight / 2); menuItems.forEach((item, index) => { const createMenuItemTexture = (text: string) => { const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 64; const ctx = canvas.getContext('2d')!; ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.font = 'bold 40px sans-serif'; ctx.fillStyle = '#00bfff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, canvas.width / 2, canvas.height / 2); const texture = new THREE.CanvasTexture(canvas); texture.needsUpdate = true; return texture; }; const itemGeometry = new THREE.PlaneGeometry(2.2, itemHeight); const itemMaterial = new THREE.MeshBasicMaterial({ map: createMenuItemTexture(item.text), transparent: true }); const itemMesh = new THREE.Mesh(itemGeometry, itemMaterial); const yPos = startY - index * (itemHeight + spacing); itemMesh.position.set(0, yPos, 0.05); screenGroup.add(itemMesh); this.signPanels.push({ mesh: itemMesh, label: item.label }); }); menuBoardGroup.position.set(4.3, 0, 2.2); menuBoardGroup.scale.set(0.8, 0.8, 0.8); this.scene.add(menuBoardGroup); }
   private addTableDetails(): void { const cupMaterial = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.3 }); const cupGeometry = new THREE.CylinderGeometry(0.08, 0.1, 0.15, 16); const plateMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.3 }); const plateGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.02, 16); const cup1 = new THREE.Mesh(cupGeometry, cupMaterial); cup1.position.set(-0.2, 1.08, 0.1); this.scene.add(cup1); const plate1 = new THREE.Mesh(plateGeometry, plateMaterial); plate1.position.set(0.2, 1.01, -0.1); this.scene.add(plate1); }
-  private addAwningLights(): void { const lightGroup = new THREE.Group(); const lightColor = 0xffd899; const intensity = 3.5; const distance = 6; const decay = 2; const positionsX = [-2, 0, 2]; for (const x of positionsX) { const light = new THREE.PointLight(lightColor, intensity, distance, decay); light.position.set(x, 3, 2.5); light.castShadow = true; lightGroup.add(light); const fixture = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshStandardMaterial({ color: 0x555555, emissive: lightColor, emissiveIntensity: 1.0 })); fixture.position.copy(light.position); lightGroup.add(fixture); } this.scene.add(lightGroup); }
+  private addAwningLights(): void { const lightGroup = new THREE.Group();     const lightColor = 0xffd899;
+    const intensity = 9.0; // Increased intensity
+    const distance = 8;
+    const decay = 2; const positionsX = [-2, 0, 2]; for (const x of positionsX) { const light = new THREE.PointLight(lightColor, intensity, distance, decay); light.position.set(x, 3, 2.5); light.castShadow = true; lightGroup.add(light); const fixture = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), new THREE.MeshStandardMaterial({ color: 0x555555, emissive: lightColor, emissiveIntensity: 1.0 })); fixture.position.copy(light.position); lightGroup.add(fixture); } this.scene.add(lightGroup); }
   private addPlatformLights(): void { const lightGroup = new THREE.Group(); const lightColor = 0xffd899; const intensity = 4.0; const distance = 8; const decay = 2; const zPositions = [-7, 0, 7]; for (const z of zPositions) { const light = new THREE.PointLight(lightColor, intensity, distance, decay); light.position.set(-12.5, 3.2, z); light.castShadow = true; lightGroup.add(light); const fixture = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.2), new THREE.MeshStandardMaterial({ color: 0x333333, emissive: lightColor, emissiveIntensity: 1.0 })); fixture.position.copy(light.position); lightGroup.add(fixture); } this.scene.add(lightGroup); }
-  private addStreetLights(): void { const lampPostPositions = [ new THREE.Vector3(12, 0, 12), new THREE.Vector3(12, 0, -12), new THREE.Vector3(-10, 0, 12), new THREE.Vector3(-10, 0, -12) ]; const poleMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 }); const lightFixtureMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffd899, emissiveIntensity: 2.0 }); const createLampPost = (position: THREE.Vector3) => { const lampGroup = new THREE.Group(); const poleGeometry = new THREE.CylinderGeometry(0.1, 0.15, 4, 16); const pole = new THREE.Mesh(poleGeometry, poleMaterial); pole.position.y = 2; pole.castShadow = true; lampGroup.add(pole); const armGeometry = new THREE.BoxGeometry(1, 0.1, 0.1); const arm = new THREE.Mesh(armGeometry, poleMaterial); arm.position.set(0.5, 4, 0); arm.castShadow = true; lampGroup.add(arm); const fixtureGeometry = new THREE.SphereGeometry(0.2, 16, 16); const fixture = new THREE.Mesh(fixtureGeometry, lightFixtureMaterial); fixture.position.set(1, 3.8, 0); lampGroup.add(fixture); const pointLight = new THREE.PointLight(0xffd899, 3.0, 15, 2); pointLight.position.copy(fixture.position); pointLight.castShadow = true; lampGroup.add(pointLight); lampGroup.position.copy(position); lampGroup.rotation.y = Math.atan2(position.x, position.z) + Math.PI; this.scene.add(lampGroup); }; lampPostPositions.forEach(pos => createLampPost(pos)); }
+  private addStreetLights(): void { const lampPostPositions = [ new THREE.Vector3(12, 0, 12), new THREE.Vector3(12, 0, -12), new THREE.Vector3(-10, 0, 12), new THREE.Vector3(-10, 0, -12) ]; const poleMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 }); const lightFixtureMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffd899, emissiveIntensity: 2.0 }); const createLampPost = (position: THREE.Vector3) => { const lampGroup = new THREE.Group(); const poleGeometry = new THREE.CylinderGeometry(0.1, 0.15, 4, 16); const pole = new THREE.Mesh(poleGeometry, poleMaterial); pole.position.y = 2; pole.castShadow = true; lampGroup.add(pole); const armGeometry = new THREE.BoxGeometry(1, 0.1, 0.1); const arm = new THREE.Mesh(armGeometry, poleMaterial); arm.position.set(0.5, 4, 0); arm.castShadow = true; lampGroup.add(arm); const fixtureGeometry = new THREE.SphereGeometry(0.2, 16, 16); const fixture = new THREE.Mesh(fixtureGeometry, lightFixtureMaterial); fixture.position.set(1, 3.8, 0); lampGroup.add(fixture); const pointLight = new THREE.PointLight(0xffd899, 7.5, 15, 2); pointLight.position.copy(fixture.position); pointLight.castShadow = true; lampGroup.add(pointLight); lampGroup.position.copy(position); lampGroup.rotation.y = Math.atan2(position.x, position.z) + Math.PI; this.scene.add(lampGroup); }; lampPostPositions.forEach(pos => createLampPost(pos)); }
   private addTrainTracks(): void { const trackGroup = new THREE.Group(); const platformGeometry = new THREE.BoxGeometry(3, 0.2, 15); const platformMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 }); const platform = new THREE.Mesh(platformGeometry, platformMaterial); platform.position.set(-12.5, 0.1, 0); platform.receiveShadow = true; trackGroup.add(platform); const sleeperGeometry = new THREE.BoxGeometry(0.2, 0.05, 2); const sleeperMaterial = new THREE.MeshStandardMaterial({ color: 0x6B4F3B }); for (let i = -15; i < 15; i += 0.8) { const sleeper = new THREE.Mesh(sleeperGeometry, sleeperMaterial); sleeper.position.set(-14.5, 0.05, i); sleeper.receiveShadow = true; trackGroup.add(sleeper); } const railGeometry = new THREE.BoxGeometry(0.08, 0.08, 30); const railMaterial = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.8, roughness: 0.5 }); const rail1 = new THREE.Mesh(railGeometry, railMaterial); rail1.position.set(-14.2, 0.12, 0); rail1.castShadow = true; trackGroup.add(rail1); const rail2 = new THREE.Mesh(railGeometry, railMaterial); rail2.position.set(-14.8, 0.12, 0); rail2.castShadow = true; trackGroup.add(rail2); this.scene.add(trackGroup); }
   private addTrain(): void { const trainGroup = new THREE.Group(); trainGroup.position.set(-14.5, 0.35, 0); trainGroup.rotation.y = Math.PI / 2; const dbRed = 0xDB1F26; const bodyMaterial = new THREE.MeshStandardMaterial({ color: dbRed, metalness: 0.8, roughness: 0.4 }); const carriageMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.6, roughness: 0.5 }); const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.9, roughness: 0.8 }); const windowMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 1.0, roughness: 0.2 }); const wheelGeometry = new THREE.CylinderGeometry(0.25, 0.25, 1.2, 16); wheelGeometry.rotateX(Math.PI / 2); const locomotiveGroup = new THREE.Group(); const locoBody = new THREE.Mesh(new THREE.BoxGeometry(4, 1.2, 1), bodyMaterial); locoBody.position.y = 0.6; locoBody.castShadow = true; locomotiveGroup.add(locoBody); const logoTexture = this.createDBLogoTexture(); const logoMaterial = new THREE.MeshBasicMaterial({ map: logoTexture, transparent: true }); const logoPlane = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), logoMaterial); logoPlane.position.set(0, 0.7, 0.51); locomotiveGroup.add(logoPlane); const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1), new THREE.MeshStandardMaterial({ color: 0x444444 })); cabin.position.set(-1.25, 1.4, 0); cabin.castShadow = true; locomotiveGroup.add(cabin); const cabinWindow = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.5, 0.8), windowMaterial); cabinWindow.position.set(-1.95, 1.4, 0); locomotiveGroup.add(cabinWindow); const headLightFixture = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.1, 0.1), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 2.0 })); headLightFixture.position.set(-2.0, 0.8, 0); headLightFixture.rotation.z = Math.PI / 2; locomotiveGroup.add(headLightFixture); const headLight = new THREE.SpotLight(0xffffff, 5.0, 20, Math.PI / 6, 0.5, 2); headLight.position.set(-2.0, 0.8, 0); headLight.target.position.set(-10, 0.8, 0); locomotiveGroup.add(headLight); locomotiveGroup.add(headLight.target); for (let i = 0; i < 2; i++) { const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial); wheel.position.set(-1 + i * 2, 0, 0); locomotiveGroup.add(wheel); } locomotiveGroup.position.x = -10; trainGroup.add(locomotiveGroup); const carriageLength = 5; const carriageWidth = 1.1; const carriageHeight = 1.4; const carriageSpacing = 0.5; let currentX = -10 + 4 / 2 + carriageSpacing + carriageLength / 2; for (let i = 0; i < 2; i++) { const carriageGroup = new THREE.Group(); const carriageBody = new THREE.Mesh(new THREE.BoxGeometry(carriageLength, carriageHeight, carriageWidth), carriageMaterial); carriageBody.position.y = 0.7; carriageBody.castShadow = true; carriageGroup.add(carriageBody); for (let j = -1; j <= 1; j += 2) { for (let k = -1.5; k <= 1.5; k += 1) { const window = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.05), windowMaterial); window.position.set(k, 0.9, (carriageWidth / 2) * j); carriageGroup.add(window); } } for (let j = 0; j < 2; j++) { const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial); wheel.position.set(-1.5 + j * 3, 0, 0); carriageGroup.add(wheel); } carriageGroup.position.x = currentX; trainGroup.add(carriageGroup); currentX += carriageLength + carriageSpacing; } this.scene.add(trainGroup); }
   private createDBLogoTexture(): THREE.CanvasTexture { const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 256; const ctx = canvas.getContext('2d')!; ctx.fillStyle = 'white'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.font = 'bold 180px sans-serif'; ctx.fillStyle = '#DB1F26'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('DB', canvas.width / 2, canvas.height / 2); const texture = new THREE.CanvasTexture(canvas); texture.needsUpdate = true; return texture; }

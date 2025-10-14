@@ -7,10 +7,16 @@ import * as THREE from 'three';
 })
 export class SceneControlService {
   private zoomRequestSource = new Subject<THREE.Object3D | string>();
+  private cameraResetRequestSource = new Subject<void>();
 
   zoomRequest$ = this.zoomRequestSource.asObservable();
+  cameraResetRequest$ = this.cameraResetRequestSource.asObservable();
 
   requestZoom(target: THREE.Object3D | string) {
     this.zoomRequestSource.next(target);
+  }
+
+  requestCameraReset(): void {
+    this.cameraResetRequestSource.next();
   }
 }
