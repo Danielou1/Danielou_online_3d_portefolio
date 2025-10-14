@@ -12,6 +12,8 @@ import { ProjekteComponent } from './components/projekte/projekte.component';
 import { ErfahrungComponent } from './components/erfahrung/erfahrung.component';
 import { DatenComponent } from './components/daten/daten.component';
 import { ThreeSceneComponent } from './three-scene/three-scene.component';
+import { ContentOverlayComponent } from './components/content-overlay/content-overlay.component';
+import { ChatbotComponent } from './components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +22,8 @@ import { ThreeSceneComponent } from './three-scene/three-scene.component';
     CommonModule, 
     RouterOutlet, 
     ThreeSceneComponent,
+    ContentOverlayComponent,
+    ChatbotComponent,
     ProfilComponent, // Re-add all routable components
     SkillsComponent,
     SoftskillsComponent,
