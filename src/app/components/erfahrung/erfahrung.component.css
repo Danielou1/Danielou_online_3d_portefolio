@@ -148,3 +148,17 @@
   color: #00bfff;
   transform: scale(1.1);
 }
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .timeline-institution {
+    font-size: 1.2rem;
+  }
+
+  .timeline-degree {
+    font-size: 1rem;
+  }
+}

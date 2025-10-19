@@ -27,7 +27,12 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   // Mouse control properties
   private isDragging = false;
   private previousMousePosition = { x: 0, y: 0 };
-  private dragThreshold = 3; // Pixels
+  private dragThreshold = 5; // Increased threshold for forgiving clicks
+
+  // Touch control properties
+  private initialPinchDistance = 0;
+  private lastTap = 0;
+  private touchStartPosition = { x: 0, y: 0 };
 
   // Orbit control properties
   private cameraTarget = new THREE.Vector3(0, 1.5, 0);
@@ -62,7 +67,13 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       canvas.addEventListener('mousemove', this.onMouseMove);
       canvas.addEventListener('click', this.onClick);
       canvas.addEventListener('mouseleave', this.onMouseLeave);
-      canvas.addEventListener('wheel', this.onMouseWheel);
+      canvas.addEventListener('wheel', this.onMouseWheel, { passive: false });
+      
+      // Touch Listeners
+      canvas.addEventListener('touchstart', this.onTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', this.onTouchMove, { passive: false });
+      canvas.addEventListener('touchend', this.onTouchEnd, { passive: false });
+
       window.addEventListener('resize', this.onWindowResize);
 
       this.sceneControlService.zoomRequest$.subscribe(target => {
@@ -83,7 +94,19 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (isPlatformBrowser(this.platformId)) {
       cancelAnimationFrame(this.animationId);
+      const canvas = this.canvasRef.nativeElement;
+      
+      // Remove all listeners
       window.removeEventListener('resize', this.onWindowResize);
+      canvas.removeEventListener('mousedown', this.onMouseDown);
+      canvas.removeEventListener('mouseup', this.onMouseUp);
+      canvas.removeEventListener('mousemove', this.onMouseMove);
+      canvas.removeEventListener('click', this.onClick);
+      canvas.removeEventListener('mouseleave', this.onMouseLeave);
+      canvas.removeEventListener('wheel', this.onMouseWheel);
+      canvas.removeEventListener('touchstart', this.onTouchStart);
+      canvas.removeEventListener('touchmove', this.onTouchMove);
+      canvas.removeEventListener('touchend', this.onTouchEnd);
     }
   }
 
@@ -168,10 +191,88 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
 
   private onMouseWheel = (event: WheelEvent) => {
     event.preventDefault();
-    this.cameraRadius -= event.deltaY * 0.01;
+    this.cameraRadius += event.deltaY * 0.01;
     this.cameraRadius = Math.max(3, Math.min(20, this.cameraRadius));
     this.updateCameraPosition();
   };
+
+  // --- Touch Handlers ---
+  private onTouchStart = (event: TouchEvent) => {
+    event.preventDefault(); // Prevent default touch actions like scrolling
+    this.isDragging = true;
+    const touches = event.touches;
+
+    if (touches.length === 1) {
+      this.previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
+      this.touchStartPosition = { x: touches[0].clientX, y: touches[0].clientY };
+    } else if (touches.length === 2) {
+      this.initialPinchDistance = this.getPinchDistance(touches);
+    }
+  };
+
+  private onTouchMove = (event: TouchEvent) => {
+    event.preventDefault();
+    if (!this.isDragging) return;
+
+    const touches = event.touches;
+    if (touches.length === 1) {
+      // Single finger drag for rotation
+      const deltaX = touches[0].clientX - this.previousMousePosition.x;
+      const deltaY = touches[0].clientY - this.previousMousePosition.y;
+      this.cameraAzimuth -= deltaX * 0.01;
+      this.cameraPolar -= deltaY * 0.01;
+      this.cameraPolar = Math.max(0.1, Math.min(Math.PI / 2 - 0.05, this.cameraPolar));
+      this.previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
+      this.updateCameraPosition();
+    } else if (touches.length === 2) {
+      // Two-finger pinch for zoom
+      const currentPinchDistance = this.getPinchDistance(touches);
+      const deltaDistance = this.initialPinchDistance - currentPinchDistance;
+
+      this.cameraRadius += deltaDistance * 0.05; // Adjust sensitivity
+      this.cameraRadius = Math.max(3, Math.min(20, this.cameraRadius));
+      this.updateCameraPosition();
+
+      this.initialPinchDistance = currentPinchDistance; // Update for continuous zoom
+    }
+  };
+
+  private onTouchEnd = (event: TouchEvent) => {
+    event.preventDefault();
+    this.isDragging = false;
+    this.initialPinchDistance = 0;
+
+    // Handle tap
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - this.lastTap;
+    if (tapLength < 300 && tapLength > 0) {
+        // This is a double tap, reset camera
+        this.resetCamera();
+    } else if (event.changedTouches.length === 1) {
+        // This is a single tap, trigger click
+        const touch = event.changedTouches[0];
+        const deltaX = Math.abs(touch.clientX - this.touchStartPosition.x);
+        const deltaY = Math.abs(touch.clientY - this.touchStartPosition.y);
+
+        if (deltaX < this.dragThreshold && deltaY < this.dragThreshold) {
+            // Simulate a mouse event to reuse the onClick logic
+            const simulatedMouseEvent = new MouseEvent('click', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                bubbles: true,
+                cancelable: true
+            });
+            this.onClick(simulatedMouseEvent);
+        }
+    }
+    this.lastTap = currentTime;
+  };
+
+  private getPinchDistance(touches: TouchList): number {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   private updateCameraPosition(): void {
     const x = this.cameraTarget.x + this.cameraRadius * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);

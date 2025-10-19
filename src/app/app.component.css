@@ -2,19 +2,30 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 800px; /* Set a fixed width */
-  height: 500px; /* Set a fixed height */
-  background-color: #111; /* Dark background from your component */
-  border-radius: 8px;
-  pointer-events: none; /* Initially not interactive */
+  width: 800px;
+  height: 500px;
+  background-color: rgba(26, 32, 44, 0.9); /* Dark, slightly transparent */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease; /* Smoother transition */
   will-change: transform, opacity;
   z-index: 10;
-  overflow: hidden; /* Hide content overflowing the panel */
+  overflow: hidden;
 }
 
 .html-panel.visible {
   opacity: 1;
   pointer-events: auto; /* Becomes interactive when visible */
+}
+
+/* Responsive adjustments for mobile devices */
+@media (max-width: 850px) {
+  .html-panel {
+    width: 95vw; /* Take up most of the screen width */
+    height: 80vh; /* Take up most of the screen height */
+  }
 }

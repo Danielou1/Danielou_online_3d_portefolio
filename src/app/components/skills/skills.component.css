@@ -134,3 +134,13 @@
   color: #00bfff;
   transform: scale(1.1);
 }
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .category-title {
+    font-size: 1.3rem;
+  }
+}
