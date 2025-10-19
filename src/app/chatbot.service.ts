@@ -26,128 +26,115 @@ export class ChatbotService implements OnDestroy {
 
   private qaRules: QARule[] = [
     { // Salutations
-      keywords: { de: ['hallo', 'guten tag', 'hey', 'bonjour'], en: ['hello', 'hi', 'hey'] },
+      keywords: { de: ['hallo', 'guten tag', 'hey', 'bonjour', 'wie gehts', 'wie geht es'], en: ['hello', 'hi', 'hey', 'how are you'] },
       answer: {
-        de: 'Hallo! Ich bin der virtuelle Avatar von Danielou. Fragen Sie mich alles über sein Profil.',
-        en: 'Hello! I am Danielou\'s virtual avatar. Ask me anything about his profile.'
+        de: 'Hallo! Ich bin der virtuelle Assistent von Danielou. Mir geht es gut, danke! Fragen Sie mich alles über sein Profil.',
+        en: 'Hello! I am Danielou\'s virtual assistant. I\'m doing well, thank you! Ask me anything about his profile.'
       }
     },
-    { // Disponibilité
-      keywords: { de: ['verfügbarkeit', 'anfangen', 'starttermin', 'eintrittsdatum'], en: ['availability', 'start date', 'when can you start'] },
+    { // Tell me about yourself
+      keywords: { de: ['erzählen sie von sich', 'über sie', 'wer sind sie', 'person', 'persönlichkeit', 'beschreiben sie sich'], en: ['about you', 'who are you', 'your personality', 'describe yourself', 'tell me about yourself'] },
       answer: {
-        de: 'Ich schließe mein Studium in Kürze ab und bin daher flexibel. Für eine Vollzeitstelle stehe ich ab dem 01.01.2026 zur Verfügung.',
-        en: 'I am finishing my studies soon and am therefore flexible. I will be available for a full-time position from January 1st, 2026.'
+        de: 'Danielou ist ein zielstrebiger und neugieriger angehender Ingenieur-Informatiker von der THM. Er verbindet eine Leidenschaft für Technologie mit praktischer Erfahrung in der Softwareentwicklung und einem starken Fokus auf das Lösen komplexer Probleme.',
+        en: 'Danielou is a determined and curious aspiring Applied Computer Science engineer from THM. He combines a passion for technology with practical software development experience and a strong focus on solving complex problems.'
       }
     },
-    { // Pourquoi vous
-      keywords: { de: ['warum sie', 'einstellen', 'nicht andere', 'vorteile', 'sollen wir sie', 'unterscheidet sie'], en: ['why you', 'hire', 'advantages', 'what sets you apart'] },
+    { // Strengths
+      keywords: { de: ['stärken', 'vorteile', 'was zeichnet sie aus'], en: ['strengths', 'advantages', 'what sets you apart'] },
       answer: {
-        de: 'Ich glaube, meine Stärke liegt in der Kombination aus soliden technischen Fähigkeiten in C++ und Java, meiner praktischen Industrieerfahrung und meiner großen Lernbereitschaft. Ich entwickle nicht nur Code, sondern robuste und durchdachte Lösungen für komplexe Probleme.',
-        en: 'I believe my strength lies in the combination of solid technical skills in C++ and Java, my practical industry experience, and my strong willingness to learn. I don\'t just write code; I develop robust and well-thought-out solutions for complex problems.'
+        de: 'Seine größten Stärken sind seine schnelle Auffassungsgabe, seine Problemlösungskompetenz und seine Fähigkeit, sich in neue Technologien einzuarbeiten. Er ist ein Teamplayer, der sowohl in der Embedded-Entwicklung mit C++ als auch in der Anwendungsentwicklung mit Java überzeugt.',
+        en: 'His greatest strengths are his quick comprehension, problem-solving skills, and his ability to learn new technologies. He is a team player who excels in both embedded development with C++ and application development with Java.'
       }
     },
-    { // Faiblesses
+    { // Weaknesses
       keywords: { de: ['schwächen', 'nachteile'], en: ['weakness', 'weaknesses'] },
       answer: {
-        de: 'Meine größte Schwäche ist wahrscheinlich meine Ungeduld, wenn es darum geht, Probleme zu lösen. Ich habe jedoch gelernt, dies in eine Stärke umzuwandeln, indem ich diese Energie in eine gründliche und strukturierte Analyse lenke, um die beste Lösung zu finden, nicht nur die schnellste.',
-        en: 'My biggest weakness is probably my impatience when it comes to solving problems. However, I\'ve learned to turn this into a strength by channeling that energy into thorough and structured analysis to find the best solution, not just the fastest one.'
+        de: 'Er ist manchmal ungeduldig, ein Problem zu lösen, was ihn aber dazu antreibt, die effizienteste und nicht nur die schnellste Lösung zu finden. Er lernt ständig, diese Energie in eine noch strukturiertere Analyse zu lenken.',
+        en: 'He can be impatient to solve a problem, but this drives him to find the most efficient solution, not just the quickest one. He is constantly learning to channel this energy into even more structured analysis.'
       }
     },
-    { // Personnalité
-      keywords: { de: ['mensch', 'person', 'persönlichkeit', 'über ihre person', 'über dich erzählen', 'beschreiben sie sich'], en: ['person', 'personality', 'describe yourself', 'tell me about yourself'] },
+    { // What are you looking for
+      keywords: { de: ['was suchen sie', 'nächste schritte', 'karriereziele'], en: ['what are you looking for', 'next steps', 'career goals'] },
       answer: {
-        de: 'Als Mensch bin ich neugierig, aufgeschlossen und zielstrebig. Ich gehe gerne auf Leute zu und glaube, dass man durch Teamarbeit und offene Kommunikation die besten Ergebnisse erzielt. In meiner Freizeit lerne ich ständig dazu, sei es durch Lesen oder kleine Programmierprojekte.',
-        en: 'As a person, I am curious, open-minded, and determined. I enjoy approaching people and believe that teamwork and open communication yield the best results. In my free time, I am constantly learning, whether through reading or small programming projects.'
+        de: 'Er sucht eine herausfordernde Position als Softwareentwickler, idealerweise im Bereich Embedded Systems oder hardwarenahe Programmierung, wo er seine Kenntnisse in C++ und Java vertiefen und an innovativen Projekten mitwirken kann.',
+        en: 'He is looking for a challenging position as a software developer, ideally in embedded systems or hardware-related programming, where he can deepen his knowledge of C++ and Java and contribute to innovative projects.'
       }
     },
-    { // Expérience actuelle
-      keywords: { de: ['wo arbeiten sie', 'arbeitgeber', 'jetzige position'], en: ['where do you work', 'current employer'] },
+    { // Availability
+      keywords: { de: ['verfügbarkeit', 'anfangen', 'starttermin', 'eintrittsdatum'], en: ['availability', 'start date', 'when can you start'] },
       answer: {
-        de: 'Derzeit unterstütze ich die Forschung und Entwicklung an der Technischen Hochschule Mittelhessen und arbeite als Dolmetscher für das BAMF. Im Sommer 2025 ist zudem ein Praktikum bei der Schunk Group geplant. Möchten Sie mehr über meine Berufserfahrung erfahren?',
-        en: 'I currently support research and development at the THM and work as an interpreter for the BAMF. An internship at the Schunk Group is also planned for summer 2025. Would you like to know more about my work experience?'
+        de: 'Er schließt sein Studium Ende 2025 ab und steht ab dem 01.01.2026 für eine Vollzeitstelle zur Verfügung. Für Praktika oder Werkstudententätigkeiten ist er nach Absprache flexibel.',
+        en: 'He will complete his studies at the end of 2025 and will be available for a full-time position from January 1st, 2026. He is flexible for internships or working student positions by arrangement.'
+      }
+    },
+    { // General Experience
+      keywords: { de: ['erfahrung', 'berufserfahrung', 'arbeit'], en: ['experience', 'work', 'background'] },
+      answer: {
+        de: 'Er hat praktische Erfahrungen in der Forschung an der THM, als Dolmetscher beim BAMF und im CNC-Bereich bei Schunk gesammelt. Soll ich Sie zum Abschnitt "Berufserfahrung" führen, um die Details zu sehen?',
+        en: 'He has gained practical experience in research at THM, as an interpreter at BAMF, and in the CNC field at Schunk. Shall I guide you to the "Work Experience" section to see the details?'
       },
       navigationTarget: 'erfahrung'
     },
-    { // Expérience générale
-      keywords: { de: ['erfahrung', 'berufserfahrung', 'arbeit', 'werdegang', 'karriere', 'laufbahn'], en: ['experience', 'experiences', 'work', 'career', 'background'] },
+    { // Education
+      keywords: { de: ['studium', 'akademisch', 'bildung', 'hochschule', 'ausbildung'], en: ['education', 'academic', 'university', 'degree'] },
       answer: {
-        de: 'Ich habe praktische Erfahrungen in der Softwareentwicklung bei Continental und der THM sowie als Dolmetscher gesammelt. Diese diversen Rollen haben meine technischen Fähigkeiten und meine Kommunikationsstärke verbessert. Soll ich Sie zu diesem Abschnitt führen?',
-        en: 'I have gained practical experience in software development at Continental and THM, as well as an interpreter. These diverse roles have improved my technical abilities and communication skills. Shall I guide you to that section?'
-      },
-      navigationTarget: 'erfahrung'
-    },
-    { // Formation
-      keywords: { de: ['studium', 'akademisch', 'bildung', 'hochschule', 'schulabschluss', 'ausbildung', 'qualifikationen'], en: ['education', 'academic', 'university', 'college', 'degree', 'qualifications'] },
-      answer: {
-        de: 'Ich absolviere derzeit meinen Bachelor in Ingenieur-Informatik an der Technischen Hochschule Mittelhessen. Mein Abitur mit Schwerpunkt Naturwissenschaften habe ich in Kamerun gemacht. Soll ich Ihnen meinen akademischen Werdegang zeigen?',
-        en: 'I am currently completing my Bachelor\'s in Engineering & Computer Science at the THM - University of Applied Sciences. I completed my high school diploma in Cameroon with a focus on science. Shall I show you my academic journey?'
+        de: 'Er absolviert seinen Bachelor in Ingenieur-Informatik an der THM. Möchten Sie die Details seiner akademischen Laufbahn sehen?',
+        en: 'He is completing his Bachelor in Applied Computer Science at THM. Would you like to see the details of his academic journey?'
       },
       navigationTarget: 'akademisch'
     },
-    { // Projets
-      keywords: { de: ['projekte', 'portfolio', 'eigene arbeiten'], en: ['projects', 'portfolio', 'personal projects'] },
+    { // ExamBuilder Project
+      keywords: { de: ['exambuilder', 'bachelorarbeit', 'abschlussprojekt'], en: ['exambuilder', 'bachelor thesis', 'final project'] },
       answer: {
-        de: 'Ich habe an mehreren spannenden Projekten gearbeitet, darunter ein SmartLab System mit STM32 und MQTT und ein ExamBuilder in Java mit Gemini API. Möchten Sie die Projektdetails sehen?',
-        en: 'I have worked on several exciting projects, including a SmartLab System with STM32 and MQTT, and an ExamBuilder in Java with Gemini API integration. Would you like to see the project details?'
+        de: 'ExamBuilder ist seine Bachelorarbeit, eine Desktop-Anwendung in JavaFX zur Erstellung und Verwaltung von Prüfungen. Ein Kernfeature ist die KI-gestützte Neuformulierung von Fragen. Möchten Sie mehr über seine Projekte erfahren?',
+        en: 'ExamBuilder is his bachelor thesis, a desktop application built with JavaFX for creating and managing exams. A core feature is the AI-powered rephrasing of questions. Would you like to learn more about his projects?'
       },
       navigationTarget: 'projekte'
     },
-    { // Compétences techniques
-      keywords: { de: ['kompetenzen', 'skills', 'fähigkeiten', 'technologien', 'c++', 'java', 'python', 'kenntnisse', 'wissen'], en: ['skills', 'competencies', 'technologies', 'c++', 'java', 'python', 'knowledge'] },
+    { // General Projects
+      keywords: { de: ['projekte', 'portfolio'], en: ['projects', 'portfolio'] },
       answer: {
-        de: 'Meine Kernkompetenzen liegen in C++ und Java. Ich habe auch Erfahrung mit Python, SQL, Web-Technologien und Embedded-Protokollen wie I2C und SPI. Wollen Sie eine detaillierte Übersicht?',
-        en: 'My core competencies are in C++ and Java. I also have experience with Python, SQL, web technologies, and embedded protocols like I2C and SPI. Would you like a detailed overview?'
+        de: 'Er hat an mehreren Projekten gearbeitet, darunter seine Bachelorarbeit "ExamBuilder" und ein SmartLab-System. Soll ich Sie zur Projektübersicht bringen?',
+        en: 'He has worked on several projects, including his bachelor thesis "ExamBuilder" and a SmartLab system. Shall I take you to the projects overview?'
+      },
+      navigationTarget: 'projekte'
+    },
+    { // Skills
+      keywords: { de: ['kompetenzen', 'skills', 'fähigkeiten', 'technologien', 'c++', 'java', 'python'], en: ['skills', 'competencies', 'technologies', 'c++', 'java', 'python'] },
+      answer: {
+        de: 'Seine Kernkompetenzen sind C++, Java und Python, mit einem starken Fokus auf Embedded Systems. Er hat aber auch Erfahrung in der Web-Entwicklung und mit Datenbanken. Wollen Sie die detaillierte Liste sehen?',
+        en: 'His core competencies are C++, Java, and Python, with a strong focus on Embedded Systems. He also has experience in web development and databases. Would you like to see the detailed list?'
       },
       navigationTarget: 'skills'
     },
-    { // Soft Skills
-      keywords: { de: ['soft skills', 'stärken'], en: ['soft skills', 'strengths'] },
-      answer: {
-        de: 'Ich sehe meine Stärken in meiner ausgeprägten Lernbereitschaft, meiner Teamfähigkeit und meinem kritischen Denken. Ich übernehme gerne Verantwortung und kommuniziere effektiv.',
-        en: 'I see my strengths in my strong willingness to learn, my ability to work in a team, and my critical thinking. I like to take responsibility and communicate effectively.'
-      }
-    },
-    { // Permis de conduire
-        keywords: { de: ['führerschein', 'mobil', 'auto'], en: ['driving license', 'driver\'s license', 'mobile', 'car'] },
-        answer: {
-            de: 'Ja, ich besitze einen Führerschein der Klasse B. Das macht mich mobil und flexibel für berufliche Termine und Reisen.',
-            en: 'Yes, I have a Class B driver\'s license. This makes me mobile and flexible for work-related appointments and travel.'
-        }
-    },
-    { // Langues
+    { // Languages
       keywords: { de: ['sprachen'], en: ['languages'] },
       answer: {
-        de: 'Meine Muttersprache ist Französisch. Außerdem spreche ich fließend Deutsch (C1) und Englisch (B2).',
-        en: 'My native language is French. I also speak fluent German (C1) and English (B2).'
+        de: 'Seine Muttersprache ist Französisch. Er spricht außerdem fließend Deutsch (C1) und gutes Englisch (B2). Soll ich Sie zur Sprachen-Sektion führen?',
+        en: 'His native language is French. He also speaks fluent German (C1) and good English (B2). Shall I take you to the languages section?'
       },
       navigationTarget: 'sprachen'
     },
-    { // Hobbys
+    { // Hobbies
       keywords: { de: ['hobbys', 'freizeit'], en: ['hobbies', 'free time'] },
       answer: {
-        de: 'In meiner Freizeit lese ich gerne, spiele Fußball und natürlich programmiere ich auch an eigenen kleinen Projekten.',
-        en: 'In my free time, I enjoy reading, playing soccer, and of course, programming my own small projects.'
+        de: 'In seiner Freizeit liest er gerne Fachliteratur, spielt Fußball und arbeitet an eigenen kleinen Programmierprojekten, um neue Technologien zu lernen.',
+        en: 'In his free time, he enjoys reading technical literature, playing soccer, and working on his own small programming projects to learn new technologies.'
       }
     },
-    { // Enfants
-        keywords: { de: ['kinder', 'familie'], en: ['children', 'family'] },
-        answer: {
-            de: 'Ja, ich habe eine wundervolle kleine Tochter, die meine Tage erhellt.',
-            en: 'Yes, I have a wonderful little girl who brightens up my days.'
-        }
-    },
-    { // Contact (Polite refusal)
-      keywords: { de: ['email', 'telefon', 'kontakt'], en: ['email', 'phone', 'contact'] },
+    { // Contact
+      keywords: { de: ['email', 'telefon', 'kontakt', 'anschrift'], en: ['email', 'phone', 'contact', 'address'] },
       answer: {
-        de: 'Meine Kontaktdaten finden Sie im entsprechenden Bereich des Portfolios. Aus Datenschutzgründen gebe ich sie hier im Chat nicht direkt weiter.',
-        en: 'You can find my contact details in the dedicated section of the portfolio. For privacy reasons, I do not provide them directly here in the chat.'
-      }
+        de: 'Die Kontaktdaten von Danielou finden Sie im Abschnitt "Daten". Aus Datenschutzgründen gebe ich sie hier im Chat nicht direkt an.',
+        en: 'You can find Danielou\'s contact details in the "Data" section. For privacy reasons, I will not provide them directly here in the chat.'
+      },
+      navigationTarget: 'daten'
     }
   ];
 
   private defaultAnswers: { de: string, en: string } = {
-    de: 'Das ist eine interessante Frage. Am besten besprechen Sie das direkt mit mir. In der Zwischenzeit, kann ich Ihnen bei einem anderen Thema helfen?',
-    en: 'That is an interesting question. It would be best to discuss that with me directly. In the meantime, can I help you with another topic?'
+    de: 'Das ist eine gute Frage. Ich habe dazu keine vorprogrammierte Antwort. Für spezifische Anfragen kontaktieren Sie Daniel bitte direkt unter <a href="mailto:mounsandedaniel@gmail.com" class="text-blue-400 hover:underline">mounsandedaniel@gmail.com</a>.',
+    en: 'That\'s a great question. I don\'t have a pre-programmed answer for that. For specific inquiries, please contact Daniel directly at <a href="mailto:mounsandedaniel@gmail.com" class="text-blue-400 hover:underline">mounsandedaniel@gmail.com</a>.'
   };
 
   constructor(

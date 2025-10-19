@@ -34,6 +34,8 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
   private lastTap = 0;
   private touchStartPosition = { x: 0, y: 0 };
 
+  private initialCameraRadiusOnPinch = 10;
+
   // Orbit control properties
   private cameraTarget = new THREE.Vector3(0, 1.5, 0);
   private cameraRadius = 10;
@@ -207,6 +209,7 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       this.touchStartPosition = { x: touches[0].clientX, y: touches[0].clientY };
     } else if (touches.length === 2) {
       this.initialPinchDistance = this.getPinchDistance(touches);
+      this.initialCameraRadiusOnPinch = this.cameraRadius; // Store radius at pinch start
     }
   };
 
@@ -225,15 +228,14 @@ export class ThreeSceneComponent implements OnInit, OnDestroy {
       this.previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
       this.updateCameraPosition();
     } else if (touches.length === 2) {
-      // Two-finger pinch for zoom
+      // Two-finger pinch for zoom (stable scaling method)
       const currentPinchDistance = this.getPinchDistance(touches);
-      const deltaDistance = this.initialPinchDistance - currentPinchDistance;
-
-      this.cameraRadius += deltaDistance * 0.05; // Adjust sensitivity
-      this.cameraRadius = Math.max(3, Math.min(20, this.cameraRadius));
-      this.updateCameraPosition();
-
-      this.initialPinchDistance = currentPinchDistance; // Update for continuous zoom
+      if (this.initialPinchDistance > 0) { // Avoid division by zero
+        const scale = currentPinchDistance / this.initialPinchDistance;
+        this.cameraRadius = this.initialCameraRadiusOnPinch / scale;
+        this.cameraRadius = Math.max(3, Math.min(20, this.cameraRadius)); // Clamp the radius
+        this.updateCameraPosition();
+      }
     }
   };
 
