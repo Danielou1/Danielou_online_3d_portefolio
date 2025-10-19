@@ -21,25 +21,39 @@ export class ErfahrungComponent implements OnInit, OnDestroy {
       title: 'Berufserfahrung',
       timeline: [
         {
-          title: 'Werkstudent Softwareentwicklung',
-          company: 'Continental AG',
-          location: 'Frankfurt am Main, Deutschland',
-          date: 'März 2024 - Laufend',
-          description: 'Entwicklung und Wartung von Softwaretools für die Automobilindustrie. Fokus auf C++ und Python in einem agilen Umfeld.'
-        },
-        {
-          title: 'Praktikant Softwareentwicklung',
-          company: 'Continental AG',
-          location: 'Frankfurt am Main, Deutschland',
-          date: 'Sep 2023 - Feb 2024',
-          description: 'Mitarbeit an der Entwicklung von Embedded-Software für Steuergeräte. Erlernen von Automotive SPICE und funktionaler Sicherheit.'
-        },
-        {
-          title: 'IT-Support & Systemadministration',
-          company: 'THM - Technische Hochschule Mittelhessen',
+          title: 'Forschung & Entwicklung im Bereich Embedded Systems',
+          company: 'Technische Hochschule Mittelhessen',
           location: 'Gießen, Deutschland',
-          date: 'Okt 2022 - Aug 2023',
-          description: 'Unterstützung der Studierenden und Mitarbeiter bei IT-Problemen, Wartung von Hard- und Software.'
+          date: 'Oktober 2023 - Laufend',
+          description: 'Mitarbeit an einem Forschungsprojekt zur Entwicklung eines Microcontroller-basierten Remote-Labors. Meine Aufgaben umfassen die Implementierung, das Testen und die Optimierung von Embedded-Systemen, um eine zuverlässige und performante Fernsteuerung der Laborumgebung zu gewährleisten.'
+        },
+        {
+          title: 'Verwaltungsunterstützung & Sprachmittlung',
+          company: 'Bundesamt für Migration und Flüchtlinge (BAMF)',
+          location: 'Gießen, Deutschland',
+          date: '2023 - Laufend',
+          description: 'Als Dolmetscher unterstütze ich bei Anhörungen und erstelle präzise schriftliche Übersetzungen. Zudem bin ich für die Aktenanlage und die Unterstützung allgemeiner Verwaltungsprozesse zuständig, um eine reibungslose Kommunikation zwischen der Behörde und den Antragstellern sicherzustellen.'
+        },
+        {
+          title: 'Verbundzusteller',
+          company: 'Deutsche Post DHL',
+          location: 'Deutschland',
+          date: 'Juni 2022 - Laufend',
+          description: 'Als Zusteller bei der Deutschen Post DHL bin ich für die zuverlässige Lieferung von Briefen und Paketen verantwortlich. Diese Rolle erfordert ein hohes Maß an Eigenorganisation und Zeitmanagement. Ein wesentlicher Teil meiner Tätigkeit ist die ständige Interaktion mit Kunden, um eine erfolgreiche Zustellung sicherzustellen und einen exzellenten Service zu bieten.'
+        },
+        {
+          title: 'Bachelorarbeit & Softwareentwicklung mit JavaFX',
+          company: 'Technische Hochschule Mittelhessen',
+          location: 'Gießen, Deutschland',
+          date: 'April 2025 - Dezember 2025',
+          description: "Im Rahmen meiner Bachelorarbeit habe ich die Desktop-Anwendung 'ExamBuilder' mit JavaFX und nach dem MVC-Muster entworfen und entwickelt. Die Anwendung dient der Erstellung, Verwaltung und dem Export von Prüfungen. Zu den Kernfunktionen gehören die flexible Zusammenstellung von Fragen, das Generieren von Lösungsblättern und eine innovative Funktion zur KI-gestützten Reformulierung von Fragen, um die Prüfungsvielfalt zu erhöhen."
+        },
+        {
+          title: 'Praktikum im CNC-Bereich',
+          company: 'Schunk Group (STS)',
+          location: 'Heuchelheim, Deutschland',
+          date: 'Juli 2025 - August 2025',
+          description: 'Intensives Praktikum in der Fertigung, in dem ich für die Programmierung und Bedienung von Siemens-CNC-Maschinen (Sinumerik) verantwortlich war. Zu meinen Aufgaben gehörten die selbstständige Fertigung von Präzisionsbauteilen sowie die kontinuierliche Überwachung und Optimierung der Fertigungsprozesse.'
         }
       ]
     },
@@ -47,25 +61,39 @@ export class ErfahrungComponent implements OnInit, OnDestroy {
       title: 'Work Experience',
       timeline: [
         {
-          title: 'Working Student Software Development',
-          company: 'Continental AG',
-          location: 'Frankfurt am Main, Germany',
-          date: 'March 2024 - Present',
-          description: 'Development and maintenance of software tools for the automotive industry. Focus on C++ and Python in an agile environment.'
-        },
-        {
-          title: 'Software Development Intern',
-          company: 'Continental AG',
-          location: 'Frankfurt am Main, Germany',
-          date: 'Sep 2023 - Feb 2024',
-          description: 'Assisted in the development of embedded software for control units. Gained experience with Automotive SPICE and functional safety.'
-        },
-        {
-          title: 'IT Support & System Administration',
-          company: 'THM - Technical University of Central Hesse',
+          title: 'Research & Development in Embedded Systems',
+          company: 'THM - University of Applied Sciences',
           location: 'Giessen, Germany',
-          date: 'Oct 2022 - Aug 2023',
-          description: 'Provided IT support to students and staff, maintained hardware and software.'
+          date: 'October 2023 - Present',
+          description: 'Contributing to a research project focused on developing a microcontroller-based remote laboratory. My responsibilities include implementing, testing, and optimizing embedded systems to ensure reliable and high-performance remote control of the lab environment.'
+        },
+        {
+          title: 'Administrative Support & Language Services',
+          company: 'Federal Office for Migration and Refugees (BAMF)',
+          location: 'Giessen, Germany',
+          date: '2023 - Present',
+          description: 'As an interpreter, I facilitate hearings and provide precise written translations. I am also responsible for file creation and supporting general administrative processes to ensure smooth communication between the authorities and applicants.'
+        },
+        {
+          title: 'Delivery Associate',
+          company: 'Deutsche Post DHL',
+          location: 'Germany',
+          date: 'June 2022 - Present',
+          description: 'As a delivery associate for Deutsche Post DHL, I am responsible for the reliable delivery of letters and parcels. This role demands a high level of self-organization and time management. A significant part of my work involves constant communication with customers to ensure successful deliveries and provide excellent service.'
+        },
+        {
+          title: 'Bachelor Thesis & Software Development with JavaFX',
+          company: 'THM - University of Applied Sciences',
+          location: 'Giessen, Germany',
+          date: 'April 2025 - December 2025',
+          description: "As part of my bachelor thesis, I designed and developed the 'ExamBuilder' desktop application using JavaFX, following the MVC design pattern. The application enables the creation, management, and export of exams. Key features include flexible assembly of exam questions, automatic generation of correction sheets, and an innovative feature for AI-powered question rephrasing to enhance exam diversity."
+        },
+        {
+          title: 'Internship in CNC Machining',
+          company: 'Schunk Group (STS)',
+          location: 'Heuchelheim, Germany',
+          date: 'July 2025 - August 2025',
+          description: 'Intensive internship in a manufacturing environment where I was responsible for programming and operating Siemens CNC machines (Sinumerik). My tasks included the independent production of precision components and the continuous monitoring and optimization of manufacturing processes.'
         }
       ]
     }

@@ -18,48 +18,48 @@ export class AkademischComponent implements OnInit, OnDestroy {
 
   academicData = {
     de: {
-      title: 'Akademischer Werdegang',
+      title: 'Akademische Laufbahn',
       timeline: [
         {
-          institution: 'Technische Hochschule Mittelhessen',
-          date: 'Okt 2022 - Laufend',
-          degree: 'Bachelor of Science, Ingenieur-Informatik',
-          description: 'Spezialisierung auf Embedded Systems und industrielle Softwareentwicklung.'
+          degree: 'Bachelor of Science: Ingenieur-Informatik',
+          institution: 'Technische Hochschule Mittelhessen (THM)',
+          date: 'Okt 2022 - Dez 2025',
+          description: 'Praxisnahes Studium mit Fokus auf Software-Engineering, Algorithmen, objektorientierte Programmierung (Java, C++), Datenbanken (SQL), Web-Technologien und Embedded Systems.'
         },
         {
-          institution: 'Goethe-Institut Kamerun',
+          degree: 'Deutsch-Sprachkurs (A1-C1) mit TestDaF-Zertifikat',
+          institution: 'Goethe-Institut',
           date: 'Sep 2019 - Aug 2021',
-          degree: 'Deutsch Sprachkurs (A1 - C1)',
-          description: 'Erfolgreicher Abschluss mit TestDaF-Zertifikat als Qualifikation für das Hochschulstudium in Deutschland.'
+          description: 'Intensivkurs zur Erlangung der sprachlichen Hochschulzugangsberechtigung für Deutschland.'
         },
         {
-          institution: 'Collège Bilingue Jacques de Bernon, Kribi',
+          degree: 'Allgemeine Hochschulreife (Abitur)',
+          institution: 'Collège Bilingue de Kribi',
           date: 'Sep 2003 - Aug 2019',
-          degree: 'Abitur (Baccalauréat Scientifique)',
-          description: 'Schwerpunkte in Mathematik, Physik und Informatik.'
+          description: 'Abschluss mit Leistungskursen in Mathematik, Physik und Informatik als solide Grundlage für ein Ingenieurstudium.'
         }
       ]
     },
     en: {
-      title: 'Academic Journey',
+      title: 'Education',
       timeline: [
         {
-          institution: 'University of Applied Sciences Mittelhessen (THM)',
-          date: 'Oct 2022 - Present',
-          degree: 'Bachelor of Science, Engineering & Computer Science',
-          description: 'Specializing in Embedded Systems and Industrial Software Development.'
+          degree: 'Bachelor of Engineering: Applied Computer Science',
+          institution: 'THM - University of Applied Sciences',
+          date: 'Oct 2022 - Dec 2025',
+          description: 'Hands-on studies focusing on Software Engineering, Algorithms, Object-Oriented Programming (Java, C++), Databases (SQL), Web Technologies, and Embedded Systems.'
         },
         {
-          institution: 'Goethe-Institut Cameroon',
+          degree: 'German Language Course (A1-C1) with TestDaF Certificate',
+          institution: 'Goethe-Institut',
           date: 'Sep 2019 - Aug 2021',
-          degree: 'German Language Course (A1 - C1)',
-          description: 'Successfully completed with the TestDaF certificate, qualifying for university studies in Germany.'
+          description: 'Intensive course to obtain the language proficiency required for university admission in Germany.'
         },
         {
-          institution: 'Collège Bilingue Jacques de Bernon, Kribi',
+          degree: 'General University Entrance Qualification (Abitur)',
+          institution: 'Collège Bilingue de Kribi',
           date: 'Sep 2003 - Aug 2019',
-          degree: 'High School Diploma (Scientific Baccalaureate)',
-          description: 'Focus on Mathematics, Physics, and Computer Science.'
+          description: 'Graduated with advanced courses in Mathematics, Physics, and Computer Science, providing a strong foundation for engineering studies.'
         }
       ]
     }
