@@ -21,8 +21,24 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
+  const allowedOrigins = [
+    'http://localhost:4200',
+    process.env.PROD_ORIGIN,
+    'https://danielou-portfolio.vercel.app' // Fallback
+  ].filter(Boolean) as string[];
+
   server.use(cors({
-    origin: 'http://localhost:4200',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+    },
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
   }));
