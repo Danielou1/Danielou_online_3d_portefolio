@@ -10,6 +10,10 @@
       "dest": "/api/chat.ts"
     },
     {
+      "src": "/(.*\..*)",
+      "dest": "/dist/danielou-portfolio/browser/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/dist/danielou-portfolio/browser/index.html"
     }
