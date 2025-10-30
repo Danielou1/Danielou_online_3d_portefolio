@@ -23,7 +23,7 @@ export function app(): express.Express {
 
   const allowedOrigins = [
     'http://localhost:4200',
-    process.env.PROD_ORIGIN,
+    process.env['PROD_ORIGIN'],
     'https://danielou-portfolio.vercel.app' // Fallback
   ].filter(Boolean) as string[];
 
