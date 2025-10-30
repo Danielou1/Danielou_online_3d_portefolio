@@ -21,8 +21,13 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
+  const allowedOrigins = ['http://localhost:4200'];
+  if (process.env['FRONTEND_URL']) {
+    allowedOrigins.push(process.env['FRONTEND_URL']);
+  }
+
   server.use(cors({
-    origin: 'http://localhost:4200',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
   }));
@@ -117,4 +122,4 @@ function run(): void {
   });
 }
 
-run();
+//run();
