@@ -110,7 +110,7 @@ Here is the information about Danielou Mounsande Sandamoun:
 function run(): void {
   const port = process.env['PORT'] || 4000;
 
-  // Start up the Node server
+  // Start up the Node server TEST 3
   const server = app();
   server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
