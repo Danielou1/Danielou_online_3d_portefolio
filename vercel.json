@@ -1,16 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist/danielou-portfolio/browser" }
-    },
-    {
-      "src": "dist/danielou-portfolio/server/server.mjs",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/dist/danielou-portfolio/server/server.mjs" },
     { "src": "/(.*)", "dest": "/dist/danielou-portfolio/server/server.mjs" }
