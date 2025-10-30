@@ -1,7 +1,11 @@
 {
   "version": 2,
+  "functions": {
+    "dist/danielou-portfolio/server/server.mjs": {
+      "runtime": "@vercel/node@2.0.0"
+    }
+  },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/dist/danielou-portfolio/server/server.mjs" },
-    { "src": "/(.*)", "dest": "/dist/danielou-portfolio/server/server.mjs" }
+    { "src": "/api/(.*)", "dest": "/dist/danielou-portfolio/server/server.mjs" }
   ]
 }
