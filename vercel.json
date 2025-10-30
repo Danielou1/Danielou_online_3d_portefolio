@@ -1,21 +1,15 @@
 {
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.ts",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/chat.ts"
-    },
-    {
-      "src": "/(.*\..*)",
-      "dest": "/dist/danielou-portfolio/browser/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/dist/danielou-portfolio/browser/index.html"
+      "dest": "server.ts"
     }
   ]
 }
