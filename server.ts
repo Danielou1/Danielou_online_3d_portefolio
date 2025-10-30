@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
 import bodyParser from 'body-parser';
-import { GoogleGenAI, Model } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import 'dotenv/config';
 import cors from 'cors';
 
@@ -21,13 +21,24 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
-  const allowedOrigins = ['http://localhost:4200'];
-  if (process.env['FRONTEND_URL']) {
-    allowedOrigins.push(process.env['FRONTEND_URL']);
-  }
+  const allowedOrigins = [
+    'http://localhost:4200',
+    process.env['PROD_ORIGIN'],
+    'https://danielou-portfolio.vercel.app' // Fallback TEST
+  ].filter(Boolean) as string[];
 
   server.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+    },
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
   }));
@@ -68,7 +79,7 @@ Here is the information about Danielou Mounsande Sandamoun:
         throw new Error('GEMINI_API_KEY is not set in environment variables.');
       }
 
-      const prompt = `${persona}\n\nQuestion in ${lang}:\n"${userMessage}"\n\nAnswer in ${lang}:`;
+      const prompt = `${persona}\n\nQuestion in ${lang}:\n\"${userMessage}\"\n\nAnswer in ${lang}:`;
 
       const genAI = new GoogleGenAI({ apiKey: apiKey });
       console.log('genAI object:', genAI);
@@ -112,12 +123,13 @@ Here is the information about Danielou Mounsande Sandamoun:
   return server;
 }
 
+export const expressApp = app();
+
 function run(): void {
   const port = process.env['PORT'] || 4000;
 
-  // Start up the Node server TEST 3
-  const server = app();
-  server.listen(port, () => {
+  // Start up the Node server
+  expressApp.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
