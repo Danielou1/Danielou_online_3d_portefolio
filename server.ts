@@ -14,7 +14,7 @@ export function app(): express.Express {
   const server = express();
   const serverDistFolder = dirname(fileURLToPath(import.meta.url));
   const browserDistFolder = resolve(serverDistFolder, '../browser');
-  const indexHtml = join(serverDistFolder, 'index.server.html');
+  const indexHtml = join(browserDistFolder, 'index.server.html');
 
   const commonEngine = new CommonEngine();
 
@@ -133,4 +133,4 @@ function run(): void {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
-////run();
+//run();
