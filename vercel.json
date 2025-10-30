@@ -1,6 +1,12 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/server.ts" }
+  "functions": {
+    "server.ts": {
+      "runtime": "@vercel/node@2.0.0"
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server.ts" },
+    { "src": "/(.*)", "dest": "/server.ts" }
   ]
 }
