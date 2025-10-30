@@ -41,21 +41,27 @@ export class ChatbotComponent implements OnInit {
       return;
     }
 
-    // Ajoute le message de l'utilisateur
-    this.messages.push({ sender: 'user', text: this.userInput });
+    const userMessage = this.userInput; // Store user input before clearing
+    this.messages.push({ sender: 'user', text: userMessage });
+    this.userInput = ''; // Clear input immediately
 
-    // Récupère la réponse complexe du bot
-    const botResponse: BotResponse = this.chatbotService.getAnswer(this.userInput);
-    
-    // Ajoute la réponse du bot
-    this.messages.push({ 
-      sender: 'bot', 
-      text: botResponse.text, 
-      navigationTarget: botResponse.navigationTarget 
-    });
-
-    // Vide le champ de saisie
-    this.userInput = '';
+    // Récupère la réponse complexe du bot via l'API
+    this.chatbotService.getAnswer(userMessage).subscribe(
+      (botResponse: BotResponse) => {
+        this.messages.push({
+          sender: 'bot',
+          text: botResponse.text,
+          navigationTarget: botResponse.navigationTarget
+        });
+      },
+      (error) => {
+        console.error('Error getting bot response:', error);
+        this.messages.push({
+          sender: 'bot',
+          text: 'Désolé, une erreur est survenue lors de la communication avec l\'IA.'
+        });
+      }
+    );
   }
 
   // Nouvelle méthode pour gérer le clic sur un message
