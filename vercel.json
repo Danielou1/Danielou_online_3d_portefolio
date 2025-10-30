@@ -4,15 +4,10 @@
       "NODE_ENV": "production"
     }
   },
-  "functions": {
-    "server.ts": {
-      "runtime": "node@20.x"
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server.ts"
+      "dest": "/api/chat.ts"
     },
     {
       "src": "/(.*)",
