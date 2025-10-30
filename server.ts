@@ -24,7 +24,7 @@ export function app(): express.Express {
   const allowedOrigins = [
     'http://localhost:4200',
     process.env['PROD_ORIGIN'],
-    'https://danielou-portfolio.vercel.app' // Fallback
+    'https://danielou-portfolio.vercel.app' // Fallback TEST
   ].filter(Boolean) as string[];
 
   server.use(cors({
