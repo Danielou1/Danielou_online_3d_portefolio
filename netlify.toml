@@ -5,7 +5,7 @@
   publish = "dist/danielou-portfolio/browser"
 
 [functions]
-  directory = "dist/danielou-portfolio/server"
+  directory = "netlify/functions"
 
 [[redirects]]
   # Rewrite all requests to the serverless function
