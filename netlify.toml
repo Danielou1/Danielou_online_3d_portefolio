@@ -1,0 +1,15 @@
+# Configuration for deploying the Angular SSR app to Netlify
+
+[build]
+  # Command to build the project
+  command = "npm run build"
+  
+  # Directory containing the static browser assets
+  publish = "dist/danielou-portfolio/browser"
+
+[[redirects]]
+  # Rewrite all requests to the serverless function
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+  force = true

@@ -21,11 +21,7 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
-  server.use(cors({
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
-  }));
+  server.use(cors());
   console.log('CORS middleware applied with explicit configuration.');
   server.use(bodyParser.json());
 
@@ -117,4 +113,4 @@ function run(): void {
   });
 }
 
-run();
+// run();
